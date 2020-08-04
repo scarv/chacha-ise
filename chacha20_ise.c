@@ -66,6 +66,14 @@ uint64_t chacha20_bc1(uint64_t rs1, uint64_t rs2) {
     return ((uint64_t)nb) << 32 | nc;
 }
 
+
+#define FQR(rs1,rs2) {          \
+    rs1= chacha20_ad0(rs1,rs2); \
+    rs2= chacha20_bc0(rs1,rs2); \
+    rs1= chacha20_ad1(rs1,rs2); \
+    rs2= chacha20_bc1(rs1,rs2); \
+}
+
 void chacha20_qr(uint32_t g[4]) {
     uint64_t tmp;
     uint32_t a = g[0];
@@ -76,10 +84,7 @@ void chacha20_qr(uint32_t g[4]) {
     uint64_t ad = rv64_pack(d,a); 
     uint64_t bc = rv64_pack(c,b); 
 
-    ad = chacha20_ad0(ad,bc);
-    bc = chacha20_bc0(ad,bc);
-    ad = chacha20_ad1(ad,bc);
-    bc = chacha20_bc1(ad,bc);
+    FQR(ad,bc)
 
     a = ad >> 32;
     b = bc >> 32;
@@ -91,7 +96,6 @@ void chacha20_qr(uint32_t g[4]) {
     g[2] = c;
     g[3] = d;
 }
-
 
 //! A vanilla implementation of the ChaCha20 block function.
 void chacha20_block(uint32_t out[16], uint32_t const in[16])
@@ -108,13 +112,76 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
     uint64_t a6 = pin[6];  // 13, 12
     uint64_t a7 = pin[7];  // 15, 14
 
-    uint64_t t0 = rv64_pack (a2, a0); //  0,  4  Column 0
-    uint64_t t1 = rv64_pack (a6, a4); //  8, 12
-    uint64_t t2 = rv64_packh(a2, a0); //  1,  5  Column 1
-    uint64_t t3 = rv64_packh(a6, a4); //  9, 13
-    uint64_t t4 = rv64_pack (a3, a1); //  2,  6  Column 2
-    uint64_t t5 = rv64_pack (a7, a5); // 10, 14
-    uint64_t t6 = rv64_packh(a3, a1); //  3,  7  Column 3
-    uint64_t t7 = rv64_packh(a7, a5); // 11, 15
+    uint64_t t0 = rv64_pack (a6, a0); //  0,  4  Column 0
+    uint64_t t1 = rv64_pack (a4, a2); //  8, 12
+    uint64_t t2 = rv64_packh(a6, a0); //  1,  5  Column 1
+    uint64_t t3 = rv64_packh(a4, a2); //  9, 13
+    uint64_t t4 = rv64_pack (a7, a1); //  2,  6  Column 2
+    uint64_t t5 = rv64_pack (a5, a3); // 10, 14
+    uint64_t t6 = rv64_packh(a7, a1); //  3,  7  Column 3
+    uint64_t t7 = rv64_packh(a5, a3); // 11, 15
+
+    //for(int i = 0; i < CHACHA20_ROUNDS; i += 2) {
+        printf("---\n");
+        printf("%016llX %016llX\n", t0, t1);
+        printf("%016llX %016llX\n", t2, t3);
+        printf("%016llX %016llX\n", t4, t5);
+        printf("%016llX %016llX\n", t6, t7);
+
+        FQR(t0, t1); // QR(x[0], x[4], x[ 8], x[12]) - column 0
+        FQR(t2, t3); // QR(x[1], x[5], x[ 9], x[13]) - column 1
+        FQR(t4, t5); // QR(x[2], x[6], x[10], x[14]) - column 2
+        FQR(t6, t7); // QR(x[3], x[7], x[11], x[15]) - column 3
+        
+        printf("---\n");
+        printf("%016llX %016llX\n", t0, t1);
+        printf("%016llX %016llX\n", t2, t3);
+        printf("%016llX %016llX\n", t4, t5);
+        printf("%016llX %016llX\n", t6, t7);
+
+        a0 = rv64_pack (t2, t0); //  0,  4  Column 0
+        a1 = rv64_pack (t4, t6); //  8, 12
+        a2 = rv64_packh(t2, t0); //  1,  5  Column 1
+        a3 = rv64_packh(t6, t4); //  9, 13
+        a4 = rv64_pack (t3, t1); //  2,  6  Column 2
+        a5 = rv64_pack (t7, t5); // 10, 14
+        a6 = rv64_packh(t3, t1); //  3,  7  Column 3
+        a7 = rv64_packh(t5, t7); // 11, 15
+        
+        printf("---\n");
+        printf("%016llX %016llX\n", a0, a1);
+        printf("%016llX %016llX\n", a2, a3);
+        printf("%016llX %016llX\n", a4, a5);
+        printf("%016llX %016llX\n", a6, a7);
+        
+        FQR(a0, a1); // QR(x[0], x[4], x[ 8], x[12]) - column 0
+        FQR(a2, a3); // QR(x[1], x[5], x[ 9], x[13]) - column 1
+        FQR(a4, a5); // QR(x[2], x[6], x[10], x[14]) - column 2
+        FQR(a6, a7); // QR(x[3], x[7], x[11], x[15]) - column 3
+        
+        printf("---\n");
+        printf("%016llX %016llX\n", a0, a1);
+        printf("%016llX %016llX\n", a2, a3);
+        printf("%016llX %016llX\n", a4, a5);
+        printf("%016llX %016llX\n", a6, a7);
+    //}
+
+
+    out[ 0] = t0     ;
+    out[ 1] = t0>>32 ;
+    out[ 2] = t1     ;
+    out[ 3] = t1>>32 ;
+    out[ 4] = t2     ;
+    out[ 5] = t2>>32 ;
+    out[ 6] = t3     ;
+    out[ 7] = t3>>32 ;
+    out[ 8] = t4     ;
+    out[ 9] = t4>>32 ;
+    out[10] = t5     ;
+    out[11] = t5>>32 ;
+    out[12] = t6     ;
+    out[13] = t6>>32 ;
+    out[14] = t7     ;
+    out[15] = t7>>32 ;
 }
 

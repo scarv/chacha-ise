@@ -29,7 +29,9 @@ void test_quarter_round() {
     chacha20_qr(d);
 
     for(int i = 0; i< 4; i ++) {
-        printf("%08X %08X   %d\n", g[i], d[i], g[i] != d[i]);
+        if(g[i] != d[i]){
+            printf("%08X %08X   %d\n", g[i], d[i], g[i] != d[i]);
+        }
     }
 
 }
