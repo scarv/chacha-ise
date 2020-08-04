@@ -1,0 +1,7 @@
+
+read_verilog schacha20.v
+synth
+write_verilog work/synth_schacha20.v
+stat
+ltp
+
