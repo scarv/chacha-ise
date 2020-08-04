@@ -18,50 +18,28 @@ uint64_t rv64_packh(uint64_t rs1, uint64_t rs2) {
     uint32_t b = rs2 >> 32;  \
     uint32_t c = rs2      ;  \
 
-uint64_t chacha_i1_hi2(uint64_t rs1, uint64_t rs2) {
-    uint32_t a    = rs1 >> 32;
-    uint32_t b    = rs2 >> 32;
-    uint32_t c    = rs2      ;
-    uint32_t d    = rs1      ;
-    uint64_t rd_0 = c;
-    uint64_t rd_1 = ROL32((a+b) ^ d, 16);
-    return (rd_1 << 32) | rd_0;
+uint64_t chacha20_ad(uint64_t rs1, uint64_t rs2) {
+    uint32_t a = rs1 >> 32;
+    uint32_t b = rs2 >> 32;
+    uint32_t c = rs2      ;
+    uint32_t d = rs1      ;
+
+    uint32_t na = a+b;
+    uint32_t nd = ROL32((d ^ na), 16);
+
+    return ((uint64_t)na) << 32 | nd;
 }
 
-uint64_t chacha_i1_lo (uint32_t a, uint32_t b, uint32_t c, uint32_t d) {
-    uint64_t rd_0 = c;
-    uint64_t rd_1 = ROL32((a+b) ^ d,  8);
-    return (rd_1 << 32) | rd_0;
-}
+uint64_t chacha20_bc(uint64_t rs1, uint64_t rs2) {
+    uint32_t a = rs1 >> 32;
+    uint32_t b = rs2 >> 32;
+    uint32_t c = rs2      ;
+    uint32_t d = rs1      ;
 
-uint64_t chacha_i2_hi2(uint64_t rs1, uint64_t rs2) {
-    uint32_t b    = rs1 >> 32;
-    uint32_t c    = rs2      ;
-    uint32_t d    = rs2 >> 32;
-    uint64_t rd_0 = c + d;
-    uint64_t rd_1 = ROL32((c+d) ^ b, 12);
-    return (rd_1 << 32) | rd_0;
-}
+    uint32_t nc = c + d;
+    uint32_t nb = ROL32((nc ^ b),12)
 
-uint64_t chacha_i2_lo (uint32_t a, uint32_t b, uint32_t c, uint32_t d) {
-    uint64_t rd_0 = c + d;
-    uint64_t rd_1 = ROL32((c+d) ^ b,  7);
-    return (rd_1 << 32) | rd_0;
-}
-
-uint64_t chacha_i3_hi2(uint64_t rs1, uint64_t rs2) {
-    uint32_t a    = rs1 >> 32;
-    uint32_t b    = rs2 >> 32;
-    uint32_t c    = rs2      ;
-    uint64_t rd_0 = a + (ROR32(b,12) ^ c);
-    uint64_t rd_1 = b;
-    return (rd_1 << 32) | rd_0;
-}
-
-uint64_t chacha_i3_lo (uint32_t a, uint32_t b, uint32_t c, uint32_t d) {
-    uint64_t rd_0 = a + (ROR32(b, 7) ^ c);
-    uint64_t rd_1 = d;
-    return (rd_1 << 32) | rd_0;
+    return ((uint64_t)nb) << 32 | nc;
 }
 
 void chacha20_qr(uint32_t g[4]) {
@@ -71,32 +49,16 @@ void chacha20_qr(uint32_t g[4]) {
     uint32_t c = g[2];
     uint32_t d = g[3];
 
-    uint64_t ad = rv64_pack(d,a); // ((uint64_t)a)<<32 | d;
-    uint64_t bc = rv64_pack(c,b); // ((uint64_t)b)<<32 | c;
+    uint64_t ad = rv64_pack(d,a); 
+    uint64_t bc = rv64_pack(c,b); 
 
-    uint64_t dc = chacha_i1_hi2(ad, bc); // (out d, c)
-    c = dc;
-    d = dc >> 32;
-    
-    bc = chacha_i2_hi2(bc, dc);         // (out b, out c)
-    c = bc ;
-    b = bc  >> 32;
-    
-    uint64_t ab  = chacha_i3_hi2(ad, bc);
-    a = ab ;
-    b = ab  >> 32;
-    
-    tmp = chacha_i1_lo(a,b,c,d);
-    c = tmp;
-    d = tmp >> 32;
+    ad = chacha20_ad(ad,bc);
+    bc = chacha20_bc(ad,bc);
 
-    tmp = chacha_i2_lo(a,b,c,d);
-    c = tmp;
-    b = tmp >> 32;
-
-    tmp = chacha_i3_lo(a,b,c,d);
-    a = tmp;
-    d = tmp >> 32;
+    a = ad >> 32;
+    b = bc >> 32;
+    c = bc;
+    d = ad;
 
     g[0] = a;
     g[1] = b;
