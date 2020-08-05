@@ -12,13 +12,12 @@ uint64_t rv64_packh(uint64_t rs1, uint64_t rs2) {
     return (rs1 >> 32) | ((rs2 >> 32)<<32);
 }
 
-#define UNPACK_ABCD(rs1,rs2) \
-    uint32_t a = rs1 >> 32;  \
-    uint32_t d = rs1      ;  \
-    uint32_t b = rs2 >> 32;  \
-    uint32_t c = rs2      ;  \
+// [high half of rs1, low half of rs2]
+uint64_t rv64_packm(uint64_t rs1, uint64_t rs2) {
+    return ((rs1 >> 32)<<32) | ((rs2 << 32) >> 32);
+}
 
-uint64_t chacha20_odd_ad0(uint64_t rs1, uint64_t rs2) {
+uint64_t chacha20_ad0(uint64_t rs1, uint64_t rs2) {
     uint32_t a = rs1 >> 32;
     uint32_t b = rs2 >> 32;
     uint32_t d = rs1      ;
@@ -27,7 +26,7 @@ uint64_t chacha20_odd_ad0(uint64_t rs1, uint64_t rs2) {
     return ((uint64_t)na) << 32 | nd;
 }
 
-uint64_t chacha20_odd_bc0(uint64_t rs1, uint64_t rs2) {
+uint64_t chacha20_bc0(uint64_t rs1, uint64_t rs2) {
     uint32_t b = rs2 >> 32;
     uint32_t c = rs2      ;
     uint32_t d = rs1      ;
@@ -36,7 +35,7 @@ uint64_t chacha20_odd_bc0(uint64_t rs1, uint64_t rs2) {
     return ((uint64_t)nb) << 32 | nc;
 }
 
-uint64_t chacha20_odd_ad1(uint64_t rs1, uint64_t rs2) {
+uint64_t chacha20_ad1(uint64_t rs1, uint64_t rs2) {
     uint32_t a = rs1 >> 32;
     uint32_t b = rs2 >> 32;
     uint32_t d = rs1      ;
@@ -45,7 +44,7 @@ uint64_t chacha20_odd_ad1(uint64_t rs1, uint64_t rs2) {
     return ((uint64_t)na) << 32 | nd;
 }
 
-uint64_t chacha20_odd_bc1(uint64_t rs1, uint64_t rs2) {
+uint64_t chacha20_bc1(uint64_t rs1, uint64_t rs2) {
     uint32_t b = rs2 >> 32;
     uint32_t c = rs2      ;
     uint32_t d = rs1      ;
@@ -55,60 +54,13 @@ uint64_t chacha20_odd_bc1(uint64_t rs1, uint64_t rs2) {
 }
 
 
-#define ODD_QR(rs1,rs2) {          \
-    rs1= chacha20_odd_ad0(rs1,rs2); \
-    rs2= chacha20_odd_bc0(rs1,rs2); \
-    rs1= chacha20_odd_ad1(rs1,rs2); \
-    rs2= chacha20_odd_bc1(rs1,rs2); \
+#define FQR(rs1,rs2) {          \
+    rs1= chacha20_ad0(rs1,rs2); \
+    rs2= chacha20_bc0(rs1,rs2); \
+    rs1= chacha20_ad1(rs1,rs2); \
+    rs2= chacha20_bc1(rs1,rs2); \
 }
 
-//                                  AB            ?D
-uint64_t chacha20_even_bd0(uint64_t rs1, uint64_t rs2) {
-    uint32_t a = rs1 >> 32;
-    uint32_t b = rs1      ;
-    uint32_t d = rs2      ;
-    uint32_t nb = b  ;
-    uint32_t nd = ROL32((d ^ (a+b)), 16);
-    return ((uint64_t)nb) << 32 | nd;
-}
-
-//                                  BD            ?C
-uint64_t chacha20_even_bc0(uint64_t rs1, uint64_t rs2) {
-    uint32_t b = rs1 >> 32;
-    uint32_t d = rs1      ;
-    uint32_t c = rs2      ;
-    uint32_t nc = c + d;
-    uint32_t nb = ROL32((nc ^ b),12);
-    return ((uint64_t)nb) << 32 | nc;
-}
-//                                  AD ,          BD
-uint64_t chacha20_even_ad1(uint64_t rs1, uint64_t rs2) {
-    uint32_t a = rs1 >> 32;
-    uint32_t b = rs2 >> 32;
-    uint32_t d = rs1      ;
-    uint32_t na = a+b;
-    uint32_t nd = ROL32((d ^ na),  8);
-    return ((uint64_t)na) << 32 | nd;
-}
-
-//                                  ?B            CD
-uint64_t chacha20_even_bc1(uint64_t rs1, uint64_t rs2) {
-    uint32_t b = rs1      ;
-    uint32_t c = rs2 >> 32;
-    uint32_t d = rs2      ;
-    uint32_t nc = c + d;
-    uint32_t nb = ROL32((nc ^ b), 7);
-    return ((uint64_t)nb) << 32 | nc;
-}
-
-//              AD , BC
-#define EVEN_QR(rs1,rs2) {           \
-    uint64_t bd, bc;                 \
-    bd = chacha20_even_bd0(rs1,rs2); \
-    bc = chacha20_even_bc0(bd ,rs2); \
-    rs1= chacha20_even_ad1(rs1,bd );  \
-    rs2= chacha20_even_bc1(rs1,bc );  \
-}
 
 void chacha20_qr(uint32_t g[4]) {
     uint64_t tmp;
@@ -120,7 +72,7 @@ void chacha20_qr(uint32_t g[4]) {
     uint64_t ad = rv64_pack(d,a); 
     uint64_t bc = rv64_pack(c,b); 
 
-    ODD_QR(ad,bc)
+    FQR(ad,bc)
 
     a = ad >> 32;
     b = bc >> 32;
@@ -164,11 +116,11 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
         printf("%016llX %016llX\n", t4, t5);
         printf("%016llX %016llX\n", t6, t7);
 
-                      //    A     B     C      D
-        ODD_QR(t0, t1); // QR(x[0], x[4], x[ 8], x[12]) - column 0
-        ODD_QR(t2, t3); // QR(x[1], x[5], x[ 9], x[13]) - column 1
-        ODD_QR(t4, t5); // QR(x[2], x[6], x[10], x[14]) - column 2
-        ODD_QR(t6, t7); // QR(x[3], x[7], x[11], x[15]) - column 3
+        //     AD  BC         A     B     C      D
+        FQR(t0, t1); // QR(x[0], x[4], x[ 8], x[12]) - column 0
+        FQR(t2, t3); // QR(x[1], x[5], x[ 9], x[13]) - column 1
+        FQR(t4, t5); // QR(x[2], x[6], x[10], x[14]) - column 2
+        FQR(t6, t7); // QR(x[3], x[7], x[11], x[15]) - column 3
         
         printf("---\n");
         printf("%016llX %016llX\n", t0, t1);
@@ -182,14 +134,14 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
         // t4 || t5 = x[2], x[14] || x[6], x[10]
         // t6 || t7 = x[3], x[15] || x[7], x[11]
 
-        a0 = rv64_packh(t3, t0); //  0,  5 | A, B   |  Column 0
-        a1 = rv64_pack (t6, t5); // 10, 15 | C, D   |
-        a2 = rv64_packh(t5, t2); //  1,  6 |        |  Column 1
-        a3 = rv64_pack (t0, t7); // 11, 12 |        |
-        a4 = rv64_packh(t7, t4); //  2,  7 |        |  Column 2
-        a5 = rv64_pack (t2, t1); //  8, 13 |        |
-        a6 = rv64_packh(t1, t6); //  3,  4 |        |  Column 3
-        a7 = rv64_pack (t4, t3); //  9, 14 |        |
+        a0 = rv64_packm(t0, t6); //  0, 15 | A, D   |  Column 0
+        a1 = rv64_packm(t3, t5); //  5, 10 | B, C   |
+        a2 = rv64_packm(t2, t0); //  1, 12 |        |  Column 1
+        a3 = rv64_packm(t5, t7); //  6, 11 |        |
+        a4 = rv64_packm(t4, t2); //  2, 13 |        |  Column 2
+        a5 = rv64_packm(t7, t1); //  7,  8 |        |
+        a6 = rv64_packm(t6, t4); //  3, 14 |        |  Column 3
+        a7 = rv64_packm(t1, t3); //  4,  9 |        |
         
         printf("---\n");
         printf("%016llX %016llX\n", a0, a1);
@@ -197,10 +149,11 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
         printf("%016llX %016llX\n", a4, a5);
         printf("%016llX %016llX\n", a6, a7);
         
-        EVEN_QR(a0, a1); // QR(x[0], x[5], x[10], x[15]); // diagonal 1
-        //EVEN_QR(a2, a3); // QR(x[1], x[6], x[11], x[12]); // diagonal 2
-        //EVEN_QR(a4, a5); // QR(x[2], x[7], x[ 8], x[13]); // diagonal 3
-        //EVEN_QR(a6, a7); // QR(x[3], x[4], x[ 9], x[14]); // diagonal 4
+        //     AD  BC         A     B     C      D
+        FQR(a0, a1); // QR(x[0], x[4], x[ 8], x[12]) - column 0
+        FQR(a2, a3); // QR(x[1], x[5], x[ 9], x[13]) - column 1
+        FQR(a4, a5); // QR(x[2], x[6], x[10], x[14]) - column 2
+        FQR(a6, a7); // QR(x[3], x[7], x[11], x[15]) - column 3
         
         printf("---\n");
         printf("%016llX %016llX\n", a0, a1);
