@@ -1,5 +1,9 @@
-
-= ChaCha20 ISE for 64-bit RISC-V
+ChaCha20 ISE for 64-bit RISC-V
+==============================
+:author: Ben Marshall
+:email: ben.marshall@bristol.ac.uk
+:toc:
+:lang: en
 
 *A lightweight Instruction Set Extension to accelerate the ChaCha20
  stream cipher on 64-bit RISC-V architectures.*
@@ -51,7 +55,9 @@ down as:
 
 The basic version of ChaCha can be run using `make run-reference`.
 
-== The ISE: theory of operation
+== The ISE
+
+=== Theory of operation
 
 The ISE works only on RV64, and packs two elements into a single register.
 The core accelerated function is the Quarter Round function, shown in
@@ -132,9 +138,11 @@ cannot be kept un-modified in registers.
 In total, this leads to approximately `56+480+16=552` instructions
 for a complete ChaCha20 round function, or `1.85x` faster.
 
+An additional `5` encoding points using `3` register addresses are needed.
+
 The ISE version of ChaCha can be run using `make run-ise`.
 
-=== The ISE: Hardware cost,
+=== Hardware cost
 
 An example Verilog implementation of the `chacha.*` instructions is found
 in the `chacha_ise.v` file.
@@ -166,7 +174,7 @@ Longest topological path in chacha_ise (length=25):
 Note that the cost of the `packhl` is not included, it is assumed to
 be *very small*.
 
-=== The ISE: Possible improvements.
+=== Possible improvements
 
 An obvious way to accelerate the ISE further would be to simply have
 two Quarter Round Instructions:
