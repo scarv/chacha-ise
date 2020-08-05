@@ -108,6 +108,8 @@ We introduce a single new instruction to help with this:
 `32` bits of `rs2` into the destination register.
 This instruction is very similar to the `pack*` instructions in the
 Bitmanip extension.
+The instruction may be a good candidate for the Bitmanip extension on
+its own.
 
 A re-arrangement of the state into either columns or diagonals uses
 `8` `packhl` instructions.
