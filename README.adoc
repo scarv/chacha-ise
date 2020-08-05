@@ -64,7 +64,7 @@ The core accelerated function is the Quarter Round function, shown in
 the diagram below:
 
 .https://commons.wikimedia.org/w/index.php?curid=90771650[Diagram By Tony Arcieri - Own work, CC BY-SA 4.0]
-image::https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/ChaCha_Cipher_Quarter_Round_Function.svg/382px-ChaCha_Cipher_Quarter_Round_Function.svg.png[ChaCha20 Round Function Diagram]
+image::round-function.png[ChaCha20 Round Function Diagram]
 
 Note that the quarter round function can be split into two almost identical
 "top" and "bottom" halves after the left rotation by `12`.
