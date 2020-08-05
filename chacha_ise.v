@@ -1,5 +1,5 @@
 
-module schacha20(
+module chacha_ise (
 input  wire [63:0]  rs1     ,
 input  wire [63:0]  rs2     ,
 

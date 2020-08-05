@@ -1,7 +1,7 @@
 
-work/synth_schacha20.v : schacha20.v synth.ys
+work/synth_schacha20.v : chacha_ise.v synth.ys
 	@mkdir -p work/
-	verilator --lint-only schacha20.v
+	verilator --lint-only chacha_ise.v
 	yosys -s synth.ys
 
 synthesise: work/synth_schacha20.v

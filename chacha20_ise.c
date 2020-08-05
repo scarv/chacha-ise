@@ -39,14 +39,14 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
         CHACHA_QR(a4,a5,t4,t5); // QR(x[2], x[6], x[10], x[14]) - column 2
         CHACHA_QR(a6,a7,t6,t7); // QR(x[3], x[7], x[11], x[15]) - column 3
 
-        t0 = rv64_packm(a6, a0); //  0, 15 | A, D   |  Column 0
-        t1 = rv64_packm(a5, a3); //  5, 10 | B, C   |
-        t2 = rv64_packm(a0, a2); //  1, 12 |        |  Column 1
-        t3 = rv64_packm(a7, a5); //  6, 11 |        |
-        t4 = rv64_packm(a2, a4); //  2, 13 |        |  Column 2
-        t5 = rv64_packm(a1, a7); //  7,  8 |        |
-        t6 = rv64_packm(a4, a6); //  3, 14 |        |  Column 3
-        t7 = rv64_packm(a3, a1); //  4,  9 |        |
+        t0 = rv64_packhl(a6, a0); //  0, 15 | A, D   |  Column 0
+        t1 = rv64_packhl(a5, a3); //  5, 10 | B, C   |
+        t2 = rv64_packhl(a0, a2); //  1, 12 |        |  Column 1
+        t3 = rv64_packhl(a7, a5); //  6, 11 |        |
+        t4 = rv64_packhl(a2, a4); //  2, 13 |        |  Column 2
+        t5 = rv64_packhl(a1, a7); //  7,  8 |        |
+        t6 = rv64_packhl(a4, a6); //  3, 14 |        |  Column 3
+        t7 = rv64_packhl(a3, a1); //  4,  9 |        |
         
         //        AD BC,AD BC         A     B     C      D
         CHACHA_QR(a0,a1,t0,t1); // QR(x[0], x[5], x[10], x[15]) - diagonal 0
@@ -54,14 +54,14 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
         CHACHA_QR(a4,a5,t4,t5); // QR(x[2], x[7], x[ 8], x[13]) - diagonal 2
         CHACHA_QR(a6,a7,t6,t7); // QR(x[3], x[4], x[ 9], x[14]) - diagonal 3
         
-        t0 = rv64_packm(a2, a0); //  0, 12 | A, D   |  Column 0
-        t1 = rv64_packm(a5, a7); //  4,  8 | B, C   |
-        t2 = rv64_packm(a4, a2); //  1, 13 |        |  Column 1
-        t3 = rv64_packm(a7, a1); //  5,  9 |        |
-        t4 = rv64_packm(a6, a4); //  2, 14 |        |  Column 2
-        t5 = rv64_packm(a1, a3); //  6, 10 |        |
-        t6 = rv64_packm(a0, a6); //  3, 15 |        |  Column 3
-        t7 = rv64_packm(a3, a5); //  7, 11 |        |
+        t0 = rv64_packhl(a2, a0); //  0, 12 | A, D   |  Column 0
+        t1 = rv64_packhl(a5, a7); //  4,  8 | B, C   |
+        t2 = rv64_packhl(a4, a2); //  1, 13 |        |  Column 1
+        t3 = rv64_packhl(a7, a1); //  5,  9 |        |
+        t4 = rv64_packhl(a6, a4); //  2, 14 |        |  Column 2
+        t5 = rv64_packhl(a1, a3); //  6, 10 |        |
+        t6 = rv64_packhl(a0, a6); //  3, 15 |        |  Column 3
+        t7 = rv64_packhl(a3, a5); //  7, 11 |        |
     }
 
     // 4 instructions each: load + shift + add + store - 32 total

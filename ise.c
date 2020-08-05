@@ -14,10 +14,13 @@ uint64_t rv64_packh(uint64_t rs1, uint64_t rs2) {
 }
 
 // [high half of rs1, low half of rs2]
-uint64_t rv64_packm(uint64_t rs1, uint64_t rs2) {
+uint64_t rv64_packhl(uint64_t rs1, uint64_t rs2) {
     return ((rs2 >> 32)<<32) | ((rs1 << 32) >> 32);
 }
 
+//
+// Given rs1||rs2 = AD,||B,C
+// Compute the upper Quarter round output values of A and D
 uint64_t chacha_ad0(uint64_t rs1, uint64_t rs2) {
     uint32_t a = rs1 >> 32;
     uint32_t b = rs2 >> 32;
@@ -27,6 +30,9 @@ uint64_t chacha_ad0(uint64_t rs1, uint64_t rs2) {
     return ((uint64_t)na) << 32 | nd;
 }
 
+//
+// Given rs1||rs2 = AD,||B,C
+// Compute the upper Quarter round output values of B and C
 uint64_t chacha_bc0(uint64_t rs1, uint64_t rs2) {
     uint32_t b = rs2 >> 32;
     uint32_t c = rs2      ;
@@ -36,6 +42,9 @@ uint64_t chacha_bc0(uint64_t rs1, uint64_t rs2) {
     return ((uint64_t)nb) << 32 | nc;
 }
 
+//
+// Given rs1||rs2 = AD,||B,C
+// Compute the lower Quarter round output values of A and D
 uint64_t chacha_ad1(uint64_t rs1, uint64_t rs2) {
     uint32_t a = rs1 >> 32;
     uint32_t b = rs2 >> 32;
@@ -45,6 +54,9 @@ uint64_t chacha_ad1(uint64_t rs1, uint64_t rs2) {
     return ((uint64_t)na) << 32 | nd;
 }
 
+//
+// Given rs1||rs2 = AD,||B,C
+// Compute the lower Quarter round output values of B and C
 uint64_t chacha_bc1(uint64_t rs1, uint64_t rs2) {
     uint32_t b = rs2 >> 32;
     uint32_t c = rs2      ;

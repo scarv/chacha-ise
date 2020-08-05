@@ -11,7 +11,7 @@ uint64_t rv64_pack(uint64_t rs1, uint64_t rs2);
 uint64_t rv64_packh(uint64_t rs1, uint64_t rs2);
 
 //! Pack [high 32-bits of rs2, low 32-bits of rs1].
-uint64_t rv64_packm(uint64_t rs1, uint64_t rs2);
+uint64_t rv64_packhl(uint64_t rs1, uint64_t rs2);
 
 uint64_t chacha_ad0(uint64_t rs1, uint64_t rs2);
 

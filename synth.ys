@@ -1,5 +1,5 @@
 
-read_verilog schacha20.v
+read_verilog chacha_ise.v
 synth
 write_verilog work/synth_schacha20.v
 stat -tech cmos
