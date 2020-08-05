@@ -14,7 +14,7 @@ work/reference.exe : test.c chacha20_ref.c
 run-reference: work/reference.exe
 	./work/reference.exe | tee work/reference.log
 
-work/ise.exe : test.c chacha20_ise.c
+work/ise.exe : test.c chacha20_ise.c ise.c
 	@mkdir -p work/
 	$(CC) -Wall -o $@ $^
 

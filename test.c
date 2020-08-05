@@ -20,27 +20,8 @@ uint32_t expect[16] = {
 
 uint32_t output[16];
 
-
-void test_quarter_round() {
-    uint32_t g [4] = {0xe4e7f110, 0x15593bd1, 0x1fdd0f50, 0xc47120a3};
-    uint32_t d [4] = {0xe4e7f110, 0x15593bd1, 0x1fdd0f50, 0xc47120a3};
-
-    QR(g[0], g[1], g[2], g[3]);
-    chacha20_qr(d);
-
-    for(int i = 0; i< 4; i ++) {
-        if(g[i] != d[i]){
-            printf("%08X %08X   %d\n", g[i], d[i], g[i] != d[i]);
-        }
-    }
-
-}
-
-
 int main(int argc, char ** argv) {
 
-    test_quarter_round();
-    
     chacha20_block(output, input);
     
     int mismatches = 0;
