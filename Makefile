@@ -12,11 +12,11 @@ work/reference.exe : test.c chacha20_ref.c
 	$(CC) -Wall -o $@ $^
 
 run-reference: work/reference.exe
-	./work/reference.exe
+	./work/reference.exe | tee work/reference.log
 
 work/ise.exe : test.c chacha20_ise.c
 	@mkdir -p work/
 	$(CC) -Wall -o $@ $^
 
 run-ise: work/ise.exe
-	./work/ise.exe
+	./work/ise.exe | tee work/ise.log
