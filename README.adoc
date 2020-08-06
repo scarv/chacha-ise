@@ -201,10 +201,10 @@ The approximate instruction count would then be:
   instructions in total, or `2.61x` faster than the base implementation.
 
 The downside of this approach is that it leads to a deeper circuit path
-due to chaning three 32-bit adders in sequence in the worse case.
+due to chaining three 32-bit adders in sequence in the worse case.
 A deeper analysis of this could be done, but has been rejected out of
 hand for now.
-It may be that two 32-bit adders in sequence is acceptable on a 64-bit
+It may be that three 32-bit adders in sequence is acceptable on a 64-bit
 base architecture, which by nessesity has 64-bit adders implemented
 already.
 
