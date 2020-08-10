@@ -34,3 +34,10 @@ work/ise_v3.exe : test.c chacha20_ise_v3.c ise_v3.c
 
 run-ise_v3: work/ise_v3.exe
 	./work/ise_v3.exe | tee work/ise_v3.log
+
+work/ise_v4.exe : test.c chacha20_ise_v4.c ise_v4.c
+	@mkdir -p work/
+	$(CC) -Wall -o $@ $^
+
+run-ise_v4: work/ise_v4.exe
+	./work/ise_v4.exe | tee work/ise_v4.log
