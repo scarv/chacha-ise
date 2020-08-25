@@ -79,7 +79,7 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
     out[ 9] = (a7    ) + in[ 9];
     out[10] = (a1    ) + in[10];
     out[11] = (a3    ) + in[11];
-    out[12] = (a2    ) + in[12];
+    out[12] = (a2    ) + in[12]; 
     out[13] = (a4    ) + in[13];
     out[14] = (a6    ) + in[14];
     out[15] = (a0    ) + in[15];

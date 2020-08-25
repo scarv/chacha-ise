@@ -39,19 +39,20 @@ uint64_t chacha_ad(uint64_t rs1, uint64_t rs2) {
     uint32_t ib = rs2 >> 32;
     uint32_t  d = rs1      ;
     uint32_t id = rs2      ;
-    uint32_t na = ib + (ROL32(id,16)^d);
+    uint32_t na = ib + (d^ROL32(id,16));
     uint32_t nd = ROL32((id^na),8);
     return ((uint64_t)na) << 32 | nd;
 }
 
 //
-// Given rs1||rs2 = B,C||nA,nD
+// Given rs1||rs2 = nA,nD||B,C
 // Compute the output values of B and C in the Quarter round
 uint64_t chacha_bc(uint64_t rs1, uint64_t rs2) {
-    uint32_t  b = rs1 >> 32;
-    uint32_t na = rs2 >> 32;
-    uint32_t  c = rs1      ;
-    uint32_t nd = rs2      ;
+    uint32_t na = rs1 >> 32;
+    uint32_t  b = rs2 >> 32;
+    uint32_t nd = rs1      ;
+    uint32_t  c = rs2      ;
+
     uint32_t  t = c +(ROL32(nd,24)^na);
     uint32_t nc = t + nd;
     uint32_t nb = ROL32((nc ^ ROL32((b^t),12)),7);
