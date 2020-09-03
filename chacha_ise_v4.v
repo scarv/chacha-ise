@@ -1,5 +1,5 @@
 
-module chacha_ise (
+module chacha_ise_v4 (
 input  wire [63:0]  rs1,
 input  wire [63:0]  rs2,
 
@@ -19,8 +19,8 @@ wire [31:0] b_lo = rs2[31: 0];
 
 //wire     op_xor= op_xorrol_16 || op_xorrol_12 || op_xorrol_8 || op_xorrol_7;
 
-//wire [31:0] add_hi = a_hi + b_hi;
-//wire [31:0] add_lo = a_lo + b_lo;
+wire [31:0] add_hi = a_hi + b_hi;
+wire [31:0] add_lo = a_lo + b_lo;
 
 wire [31:0] xor_hi = a_hi ^ b_hi;
 wire [31:0] xor_lo = a_lo ^ b_lo;
@@ -45,10 +45,10 @@ wire [31:0] xorrol_lo = op_xorrol_7   ? rol_lo_7  :
                         op_xorrol_12  ? rol_lo_12 :
                      /* op_xorrol_16 */ rol_lo_16 ;
 
-//wire [31:0] rd_hi   = op_add ? add_hi : xorrol_hi;
-//wire [31:0] rd_lo   = op_add ? add_lo : xorrol_lo;
+wire [31:0] rd_hi   = op_add ? add_hi : xorrol_hi;
+wire [31:0] rd_lo   = op_add ? add_lo : xorrol_lo;
 
-//assign      rd      = {rd_hi, rd_lo};
-assign        rd      = {xorrol_hi, xorrol_lo};
+assign      rd      = {rd_hi, rd_lo};
+//assign        rd      = {xorrol_hi, xorrol_lo};
 
 endmodule
