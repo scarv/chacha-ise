@@ -1,10 +1,7 @@
 
-work/synth_schacha20.v : chacha_ise.v synth.ys
+synthesise_v1: chacha_ise_v1.v synth_v1.ys
 	@mkdir -p work/
-#	verilator --lint-only chacha_ise.v
-	yosys -s synth.ys
-
-synthesise: work/synth_schacha20.v
+	yosys -s synth_v1.ys
 
 synthesise_v2: chacha_ise_v2.v synth_v2.ys
 	@mkdir -p work/
@@ -25,12 +22,12 @@ work/reference.exe : test.c chacha20_ref.c
 run-reference: work/reference.exe
 	./work/reference.exe | tee work/reference.log
 
-work/ise.exe : test.c chacha20_ise.c ise.c ise_pack.c
+work/ise_v1.exe : test.c chacha20_ise_v1.c ise_v1.c ise_pack.c
 	@mkdir -p work/
 	$(CC) -Wall -o $@ $^
 
-run-ise: work/ise.exe
-	./work/ise.exe | tee work/ise.log
+run-ise_v1: work/ise_v1.exe
+	./work/ise_v1.exe | tee work/ise_v1.log
 
 work/ise_v2.exe : test.c chacha20_ise_v2.c ise_v2.c ise_pack.c
 	@mkdir -p work/

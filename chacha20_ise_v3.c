@@ -1,6 +1,6 @@
 
 #include "chacha20.h"
-#include "ise.h"
+#include "ise_v3.h"
 
 //! A vanilla implementation of the ChaCha20 block function.
 void chacha20_block(uint32_t out[16], uint32_t const in[16])

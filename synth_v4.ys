@@ -1,7 +1,6 @@
 
 read_verilog chacha_ise_v4.v
 synth
-write_verilog work/synth_schacha20_v4.v
 stat -tech cmos
 ltp
 
