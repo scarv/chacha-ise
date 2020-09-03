@@ -1,6 +1,6 @@
 
 #include "chacha20.h"
-#include "ise_v2.h"
+#include "ise_v3.h"
 
 //! A vanilla implementation of the ChaCha20 block function.
 void chacha20_block(uint32_t out[16], uint32_t const in[16])
@@ -28,9 +28,9 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
     uint64_t t7 = rv64_packh(a5, a3); //  7, 11
 
 	//  10 loops × 2 rounds/loop = 20 rounds
-    //   2 instructions per Quarter Round
-    //  16 instructions per Round / 32 per double round.
-    // 320 instructions total in the loop.
+    //   3 instructions per Quarter Round
+    //  20 instructions per Round / 40 per double round.
+    // 400 instructions total in the loop.
     for(int i = 0; i < CHACHA20_ROUNDS; i += 2)
     {
         //        AD BC,AD BC         A     B     C      D
@@ -79,11 +79,11 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
     out[ 9] = (a7    ) + in[ 9];
     out[10] = (a1    ) + in[10];
     out[11] = (a3    ) + in[11];
-    out[12] = (a2    ) + in[12];
+    out[12] = (a2    ) + in[12]; 
     out[13] = (a4    ) + in[13];
     out[14] = (a6    ) + in[14];
     out[15] = (a0    ) + in[15];
 
-    // 392 instructions total.
+    // 472 instructions total.
 }
 
