@@ -1,23 +1,6 @@
 
 #include "ise_v3.h"
 
-#define ROL32(a,b) (((a) << (b)) | ((a) >> (32 - (b))))
-#define ROR32(a,b) (((a) >> (b)) | ((a) << (32 - (b))))
-
-uint64_t rv64_pack(uint64_t rs1, uint64_t rs2) {
-    return ((rs1 << 32)>>32) | (rs2 << 32);
-}
-
-uint64_t rv64_packh(uint64_t rs1, uint64_t rs2) {
-    return (rs1 >> 32) | ((rs2 >> 32)<<32);
-}
-
-// [high half of rs1, low half of rs2]
-uint64_t rv64_packhl(uint64_t rs1, uint64_t rs2) {
-    return ((rs2 >> 32)<<32) | ((rs1 << 32) >> 32);
-}
-
-
 //
 // Given rs1||rs2 = A,C||B,D
 // Compute the intermediate values of B and D in the Quarter round

@@ -1,27 +1,6 @@
 
 #include "ise_v4.h"
 
-#define ROL32(a,b) (((a) << (b)) | ((a) >> (32 - (b))))
-#define ROR32(a,b) (((a) >> (b)) | ((a) << (32 - (b))))
-
-uint64_t rv64_pack(uint64_t rs1, uint64_t rs2) {
-    return ((rs1 << 32)>>32) | (rs2 << 32);
-}
-
-uint64_t rv64_packh(uint64_t rs1, uint64_t rs2) {
-    return (rs1 >> 32) | ((rs2 >> 32)<<32);
-}
-
-// [high half of rs2, low half of rs1]
-uint64_t rv64_packhl(uint64_t rs1, uint64_t rs2) {
-    return ((rs2 >> 32)<<32) | ((rs1 << 32) >> 32);
-}
-
-// [low half of rs2, high half of rs1]
-uint64_t rv64_packlh(uint64_t rs1, uint64_t rs2) {
-    return (rs2<<32) | (rs1 >> 32);
-}
-
 //
 // Given rs1||rs2 = A[i],A[i+1]||B[i],B[i+1]
 // Compute A[i]=A[i] + B[i] and A[i+1]=A[i+1] + B[i+1]
