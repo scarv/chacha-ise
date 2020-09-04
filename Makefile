@@ -1,51 +1,17 @@
+ifndef CCI_HOME
+    $(error "Please run 'source ./bin/source.me.sh' to setup the project workspace")
+endif
 
-synthesise_v1: chacha_ise_v1.v synth_v1.ys
-	@mkdir -p work/
-	yosys -s synth_v1.ys
+ifndef RISCV
+    $(error "The RISCV environment variable must be set to a valid toolchain.")
+endif
 
-synthesise_v2: chacha_ise_v2.v synth_v2.ys
-	@mkdir -p work/
-	yosys -s synth_v2.ys
+work_dir ?= $(CCI_HOME)/work
 
-synthesise_v3: chacha_ise_v3.v synth_v3.ys
-	@mkdir -p work/
-	yosys -s synth_v3.ys
+cmodel_dir   ?= $(CCI_HOME)/csrc/cmodel_test
+synthesis_dir?= $(CCI_HOME)/synth_yosys
 
-synthesise_v4: chacha_ise_v4.v synth_v4.ys
-	@mkdir -p work/
-	yosys -s synth_v4.ys
+# verifying the chacha ise cmodels
+cmodel_verify:
+	$(MAKE) -C $(cmodel_dir) all                   work_dir=$(work_dir)
 
-work/reference.exe : test.c chacha20_ref.c
-	@mkdir -p work/
-	$(CC) -Wall -o $@ $^
-
-run-reference: work/reference.exe
-	./work/reference.exe | tee work/reference.log
-
-work/ise_v1.exe : test.c chacha20_ise_v1.c ise_v1.c ise_pack.c
-	@mkdir -p work/
-	$(CC) -Wall -o $@ $^
-
-run-ise_v1: work/ise_v1.exe
-	./work/ise_v1.exe | tee work/ise_v1.log
-
-work/ise_v2.exe : test.c chacha20_ise_v2.c ise_v2.c ise_pack.c
-	@mkdir -p work/
-	$(CC) -Wall -o $@ $^
-
-run-ise_v2: work/ise_v2.exe
-	./work/ise_v2.exe | tee work/ise_v2.log
-
-work/ise_v3.exe : test.c chacha20_ise_v3.c ise_v3.c ise_pack.c
-	@mkdir -p work/
-	$(CC) -Wall -o $@ $^
-
-run-ise_v3: work/ise_v3.exe
-	./work/ise_v3.exe | tee work/ise_v3.log
-
-work/ise_v4.exe : test.c chacha20_ise_v4.c ise_v4.c ise_pack.c
-	@mkdir -p work/
-	$(CC) -Wall -o $@ $^
-
-run-ise_v4: work/ise_v4.exe
-	./work/ise_v4.exe | tee work/ise_v4.log

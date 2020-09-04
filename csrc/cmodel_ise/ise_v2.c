@@ -4,7 +4,7 @@
 //
 // Given rs1||rs2 = A,C||B,D
 // Compute the intermediate values of B and D in the Quarter round
-uint64_t chacha_bd(uint64_t rs1, uint64_t rs2) {
+uint64_t chacha_bd_v2(uint64_t rs1, uint64_t rs2) {
     uint32_t a = rs1 >> 32;
     uint32_t b = rs2 >> 32;
     uint32_t d = rs1      ;
@@ -17,7 +17,7 @@ uint64_t chacha_bd(uint64_t rs1, uint64_t rs2) {
 //
 // Given rs1||rs2 = A,D||iB,iD
 // Compute the output values of A and D in the Quarter round
-uint64_t chacha_ad(uint64_t rs1, uint64_t rs2) {
+uint64_t chacha_ad_v2(uint64_t rs1, uint64_t rs2) {
     uint32_t  a = rs1 >> 32;
     uint32_t ib = rs2 >> 32;
     uint32_t  d = rs1      ;
@@ -30,7 +30,7 @@ uint64_t chacha_ad(uint64_t rs1, uint64_t rs2) {
 //
 // Given rs1||rs2 = nA,nD||B,C
 // Compute the output values of B and C in the Quarter round
-uint64_t chacha_bc(uint64_t rs1, uint64_t rs2) {
+uint64_t chacha_bc_v2(uint64_t rs1, uint64_t rs2) {
     uint32_t na = rs1 >> 32;
     uint32_t  b = rs2 >> 32;
     uint32_t nd = rs1      ;

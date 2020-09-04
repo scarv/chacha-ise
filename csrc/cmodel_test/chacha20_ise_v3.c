@@ -34,10 +34,10 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
     for(int i = 0; i < CHACHA20_ROUNDS; i += 2)
     {
         //        AD BC,AD BC         A     B     C      D
-        CHACHA_QR(a0,a1,t0,t1); // QR(x[0], x[4], x[ 8], x[12]) - column 0
-        CHACHA_QR(a2,a3,t2,t3); // QR(x[1], x[5], x[ 9], x[13]) - column 1
-        CHACHA_QR(a4,a5,t4,t5); // QR(x[2], x[6], x[10], x[14]) - column 2
-        CHACHA_QR(a6,a7,t6,t7); // QR(x[3], x[7], x[11], x[15]) - column 3
+        CHACHA_QR_V3(a0,a1,t0,t1); // QR(x[0], x[4], x[ 8], x[12]) - column 0
+        CHACHA_QR_V3(a2,a3,t2,t3); // QR(x[1], x[5], x[ 9], x[13]) - column 1
+        CHACHA_QR_V3(a4,a5,t4,t5); // QR(x[2], x[6], x[10], x[14]) - column 2
+        CHACHA_QR_V3(a6,a7,t6,t7); // QR(x[3], x[7], x[11], x[15]) - column 3
 
         t0 = rv64_packhl(a6, a0); //  0, 15 | A, D   |  Column 0
         t1 = rv64_packhl(a5, a3); //  5, 10 | B, C   |
@@ -49,10 +49,10 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
         t7 = rv64_packhl(a3, a1); //  4,  9 |        |
         
         //        AD BC,AD BC         A     B     C      D
-        CHACHA_QR(a0,a1,t0,t1); // QR(x[0], x[5], x[10], x[15]) - diagonal 0
-        CHACHA_QR(a2,a3,t2,t3); // QR(x[1], x[6], x[11], x[12]) - diagonal 1
-        CHACHA_QR(a4,a5,t4,t5); // QR(x[2], x[7], x[ 8], x[13]) - diagonal 2
-        CHACHA_QR(a6,a7,t6,t7); // QR(x[3], x[4], x[ 9], x[14]) - diagonal 3
+        CHACHA_QR_V3(a0,a1,t0,t1); // QR(x[0], x[5], x[10], x[15]) - diagonal 0
+        CHACHA_QR_V3(a2,a3,t2,t3); // QR(x[1], x[6], x[11], x[12]) - diagonal 1
+        CHACHA_QR_V3(a4,a5,t4,t5); // QR(x[2], x[7], x[ 8], x[13]) - diagonal 2
+        CHACHA_QR_V3(a6,a7,t6,t7); // QR(x[3], x[4], x[ 9], x[14]) - diagonal 3
         
         t0 = rv64_packhl(a2, a0); //  0, 12 | A, D   |  Column 0
         t1 = rv64_packhl(a5, a7); //  4,  8 | B, C   |
