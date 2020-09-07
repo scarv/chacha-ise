@@ -22,5 +22,8 @@ emu_verify:
 	$(MAKE) -C $(CCI_HOME)/csrc/emu_verify all     work_dir=$(work_dir)/emu_verify emulator_dir=$(emulator_dir)
 	$(emulator_dir)/emulator -c -m 700000 $(work_dir)/emu_verify/emu_verify-rocket-chachaise.elf
 
+emu_eval:	
+	$(MAKE) -C $(CCI_HOME)/csrc/emu_eval all       work_dir=$(work_dir)/emu_eval   emulator_dir=$(emulator_dir)
+	$(emulator_dir)/emulator -c -m 400000 $(work_dir)/emu_eval/test_chacha.elf
 
 
