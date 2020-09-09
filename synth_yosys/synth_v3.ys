@@ -1,6 +1,0 @@
-
-read_verilog chacha_ise_v3.v
-synth
-stat -tech cmos
-ltp
-
