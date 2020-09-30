@@ -1,0 +1,218 @@
+%!TEX root=../paper.tex
+
+\subsection{Variant 1 ($V_1$)}
+
+\begin{itemize}
+
+\INST{chacha20.v1.ad    rd, rs1, rs2}{
+  uint32\xspace $a,b,c,d, ia, ib, ic,id, na,nd$; \;
+  $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+  $ia \ASN a + b; id \ASN (ia \XOR  d) \LRT 16;$;
+  $ic \ASN c +id; ib \ASN (ic \XOR  b) \LRT12;$ \;
+  $na \ASN ia+ib; nd \ASN (id \XOR na) \LRT 8;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (na \LSH 32) \IOR nd;$ \;
+}
+
+\INST{chacha20.v1.bc    rd, rs1, rs2}{
+  uint32\xspace $a,b,c,d, ib, ic,id, na,nd$; \;
+  $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+  $id \ASN (d \LRT 24) \XOR a; ic \ASN c \XOR id; ib \ASN (b \XOR ic) \LRT 12;$ \;
+  $nc \ASN ic+ d; nb \ASN (ib \XOR nc) \LRT 7;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nc;$ \;
+}
+\end{itemize}
+
+
+\begin{algorithm}
+\KwData  {64-bit values $X, Y$.
+}
+\KwResult{64-bit values $X, Y$.
+}
+\BlankLine
+\KwFn{$\ALG{chacha\_qr}( X, Y )$}{
+  \VERB[ASM]{chacha20.v1.ad} X, X, Y \;
+  \VERB[ASM]{chacha20.v1.bc} Y, X, Y \;
+  $\KwRet{\TUPLE{ X, Y }}$ \;
+}
+\caption{Chacha20's Quarter Round in Variant 1.}
+\label{alg::qr::v1}
+\end{algorithm}
+
+
+\subsection{Variant 2 ($V_2$)}
+
+\begin{itemize}
+
+\INST{chacha20.v2.bd    rd, rs1, rs2}{
+  uint32\xspace $a,b,c,d, nb,nd$; \;
+  $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b' \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; d' \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+  $nd \ASN ((a + b) \XOR d) \LRT 16;$ 
+  $nb \ASN ((c +id) \XOR b) \LRT 12;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nd;$ \;
+}
+
+\INST{chacha20.v2.ad    rd, rs1, rs2}{
+  uint32\xspace $a,b',d',d, nb,nd$; \;
+  $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+  $na \ASN b' + (d \XOR (d' \LRT 16));$; 
+  $nd \ASN (na \XOR d') \LRT 8;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (na \LSH 32) \IOR nd;$ \;
+}
+
+\INST{chacha20.v2.bc    rd, rs1, rs2}{
+  uint32\xspace $a,b,c,d, t, na,nd$; \;
+  $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+  $t  \ASN c + (d \LRT 24) \XOR a;$ \;
+  $nc \ASN t + d; nb \ASN (nc \XOR ((b \XOR t) \LRT 12)) \LRT 7;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nc;$ \;
+}
+\end{itemize}
+
+\begin{algorithm}
+\KwData  {64-bit values $X, Y$.
+}
+\KwResult{64-bit values $X, Y$.
+}
+\BlankLine
+\KwFn{$\ALG{chacha\_qr}( X, Y )$}{
+  \VERB[ASM]{chacha20.v2.bd} Y, X, Y \;
+  \VERB[ASM]{chacha20.v2.ad} X, X, Y \;
+  \VERB[ASM]{chacha20.v2.bc} Y, X, Y \;
+  $\KwRet{\TUPLE{ X, Y }}$ \;
+}
+\caption{Chacha20's Quarter Round in Variant 2.}
+\label{alg::qr::v2}
+\end{algorithm}
+
+
+\subsection{Variant 3 ($V_3$)}
+
+
+\begin{itemize}
+
+\INST{chacha20.v3.ad0    rd, rs1, rs2}{
+  uint32\xspace $a,b,d na,nd$; \;
+  $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32;$
+  $d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$ \;
+  $na \ASN a + b; nd \ASN (na \XOR d) \LRT 16;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (na \LSH 32) \IOR nd;$ \;
+}
+
+\INST{chacha20.v3.bc0    rd, rs1, rs2}{
+  uint32\xspace $b,c,d, na,nd$; \;
+  $b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$
+  $d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$ \;
+  $nc \ASN c + d; nb \ASN (nc \XOR b) \LRT 12;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nc;$ \;
+}
+
+\INST{chacha20.v3.ad1    rd, rs1, rs2}{
+  uint32\xspace $a,b,d na,nd$; \;
+  $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32;$
+  $d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$ \;
+  $na \ASN a + b; nd \ASN (na \XOR d) \LRT  8;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (na \LSH 32) \IOR nd;$ \;
+}
+
+\INST{chacha20.v3.bc1    rd, rs1, rs2}{
+  uint32\xspace $b,c,d, na,nd$; \;
+  $b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$
+  $d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$ \;
+  $nc \ASN c + d; nb \ASN (nc \XOR b) \LRT  7;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nc;$ \;
+}
+\end{itemize}
+
+\begin{algorithm}
+\KwData  {64-bit values $X, Y$.
+}
+\KwResult{64-bit values $X, Y$.
+}
+\BlankLine
+\KwFn{$\ALG{chacha\_qr}( X, Y )$}{
+  \VERB[ASM]{chacha20.v3.ad0} X, X, Y \;
+  \VERB[ASM]{chacha20.v3.bc0} Y, X, Y \;
+  \VERB[ASM]{chacha20.v3.ad1} X, X, Y \;
+  \VERB[ASM]{chacha20.v3.bc1} Y, X, Y \;
+  $\KwRet{\TUPLE{ X, Y }}$ \;
+}
+\caption{Chacha20's Quarter Round in Variant 3.}
+\label{alg::qr::v3}
+\end{algorithm}
+
+
+\subsection{Variant 4 ($V_4$)}
+
+\begin{itemize}
+
+\INST{chacha20.v4.add   rd, rs1, rs2}{
+  uint32\xspace $a1,a0, b1, b0, r1,r0$; \;
+  $a1 \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; a0 \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b1 \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; b0 \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+  $r1 \ASN a1 + b1; r0 \ASN a0 + b0;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (r1 \LSH 32) \IOR r0;$ \;
+}
+
+\INST{chacha20.v4.xorrol.16  rd, rs1, rs2}{
+  uint32\xspace $a1,a0, b1, b0, r1, r0$; \;
+  $a1 \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; a0 \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b1 \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; b0 \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+
+  $r1 \ASN (a1 \XOR b1)\LRT 16; r0 \ASN (a0 \XOR b0)\LRT 16;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nc;$ \;
+}
+
+\INST{chacha20.v4.xorrol.12  rd, rs1, rs2}{
+  uint32\xspace $a1,a0, b1, b0, r1, r0$; \;
+  $a1 \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; a0 \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b1 \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; b0 \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+
+  $r1 \ASN (a1 \XOR b1)\LRT 12; r0 \ASN (a0 \XOR b0)\LRT 12;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nc;$ \;
+}
+
+\INST{chacha20.v4.xorrol.8  rd, rs1, rs2}{
+  uint32\xspace $a1,a0, b1, b0, r1, r0$; \;
+  $a1 \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; a0 \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b1 \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; b0 \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+
+  $r1 \ASN (a1 \XOR b1)\LRT 8; r0 \ASN (a0 \XOR b0)\LRT 8;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nc;$ \;
+}
+
+\INST{chacha20.v4.xorrol.7  rd, rs1, rs2}{
+  uint32\xspace $a1,a0, b1, b0, r1, r0$; \;
+  $a1 \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; a0 \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b1 \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; b0 \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+
+  $r1 \ASN (a1 \XOR b1)\LRT 7; r0 \ASN (a0 \XOR b0)\LRT 7;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nc;$ \;
+}
+\end{itemize}
+
+
+\begin{algorithm}
+\KwData  {64-bit values $X, Y, Z, W$.
+}
+\KwResult{64-bit values $X, Y, Z, W$.
+}
+\BlankLine
+\KwFn{$\ALG{chacha\_hr}( X, Y, Z, W )$}{
+  \VERB[ASM]{chacha20.v4.add}        X, X, Y \;
+  \VERB[ASM]{chacha20.v4.xorrol.16}  W, W, X \;
+  \VERB[ASM]{chacha20.v4.add}        Z, Z, W \;
+  \VERB[ASM]{chacha20.v4.xorrol.12}  Y, Y, Z \;
+  \VERB[ASM]{chacha20.v4.add}        X, X, Y \;
+  \VERB[ASM]{chacha20.v4.xorrol.8}   W, W, X \;
+  \VERB[ASM]{chacha20.v4.add}        Z, Z, W \;
+  \VERB[ASM]{chacha20.v4.xorrol.7}   Y, Y, Z \;
+  $\KwRet{\TUPLE{ X, Y }}$ \;
+}
+\caption{Chacha20's Half Round in Variant 4.}
+\label{alg::hr::v4}
+\end{algorithm}

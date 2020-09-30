@@ -1,0 +1,58 @@
+%!TEX root=../paper.tex
+
+\begin{table}
+\caption{Comparison of chacha single block function performance changes
+with the base and ise variants.}
+\label{tab:res:sw:perf}
+\begin{tabular}{lrr}
+\toprule            
+Implementations      & Instrs   & Cycles \\
+
+\midrule
+Baseline RV64IMA     & 2214     & 2803   \\
+           + ISE $V_1$ &  434     & 1221   \\
+           + ISE $V_2$ &  514     & 1597   \\
+           + ISE $V_3$ &  594     & 1972   \\
+           + ISE $V_4$ &  464     & 1818   \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}
+\caption{Comparison of hardware overheads when synthesised for a
+generic CMOS cell library}
+\label{tab:res:sw:hardcost1}
+\begin{tabular}{lrr}
+\toprule            
+Implementations      & Size         & Depth \\
+
+\midrule
+Baseline RV64IMA     & 13727614     & 2794   \\
+           + ISE $V_1$ &     9412     & 56   \\
+           + ISE $V_2$ &     9976     & 41   \\
+           + ISE $V_3$ &     5448     & 25   \\
+           + ISE $V_4$ &     6468     & 19   \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}
+\caption{Comparison of hardware overheads between sub-modules}
+\label{tab:res:sw:hardcost2}
+\begin{tabular}{lrr}
+\toprule            
+Algorithm        &     Size     & Depth  \\
+
+\midrule
+RV64 Rocket Core &   392600     & 2794  \\
+~~~~~|-- ALU     &    14876     &   28  \\
+~~~~~|-- CSRFile &   103658     &  996  \\
+~~~~~|-- Muldiv  &    68686     & 1911  \\
++ ISE $V_4$        &     6468     &   19  \\ 
+
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,58 @@
+\documentclass[submission]{iacrtrans}
+
+\usepackage{paper}
+
+\title{A lightweight ISE for ChaCha20 on 64-bit RISC-V}
+%\keywords{}
+\author{}
+%\institute{}
+
+
+\begin{document}
+
+% =============================================================================
+
+\maketitle
+
+\begin{abstract}
+This paper proposes a lightweight Instruction Set Extension (ISE) to accelerate the ChaCha20 stream cipher on 64-bit RISC-V architectures. The proposed ISE is designed to accelerate the computation of ChaCha20's block function and align with the wider RISC-V design principles. We implement and evaluate 4 different proposed ISEs. The result shows that the best tradoff variant in the proposed ISEs is 2.2x faster than the baseline implementation using basic RISCV-ISA and its implementation costs N equivalent NAND2 in hardware.
+\end{abstract}
+
+% =============================================================================
+
+%\tableofcontents
+
+\section{Introduction}
+\label{sec:intro}
+\input{tex/intro.tex}
+% =============================================================================
+
+\section{ChaCha20 stream cipher}
+\label{sec:bg}
+\input{tex/background.tex}
+% =============================================================================
+
+\section{Proposed ISEs for Chacha20}
+\label{sec:ise}
+\input{tex/ise.tex}
+% =============================================================================
+
+\section{Results}
+\label{sec:res}
+\input{tex/result.tex}
+% =============================================================================
+
+\section{Conclusion}
+\label{sec:outro}
+...
+
+% =============================================================================
+
+\bibliographystyle{alpha}
+\bibliography{paper}
+
+% =============================================================================
+
+\end{document}
+
+
