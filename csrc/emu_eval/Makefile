@@ -18,14 +18,14 @@ DISASM  = $(work_dir)/test_chacha.disasm
 
 all: $(OUTPUT) $(DISASM)
 
-CCFLAGS+=-static -nostdlib -nostartfiles -lm -lgcc -T $(hal_dir)/test.ld
+CCFLAGS+=-static -nostdlib -nostartfiles -lm -lgcc -T $(hal_dir)/test.ld 
 
 $(OUTPUT) : $(SRCS)
 	mkdir -p $(work_dir)
 	$(CC) $(RISCV_GCC_OPTS) $(CCFLAGS) $(INC_DIRS) -o $@ $^
 
 $(DISASM) : $(OUTPUT)
-	$(OBJDUMP) -dC $< > $@
+	$(OBJDUMP) -d -t $< > $@
 
 clean:
 	rm -rf $(work_dir)
