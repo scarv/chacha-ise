@@ -26,6 +26,13 @@ emu_eval:
 	$(MAKE) -C $(CCI_HOME)/csrc/emu_eval all       work_dir=$(work_dir)/emu_eval   emulator_dir=$(emulator_dir)
 	$(emulator_dir)/emulator -c -m 400000 $(work_dir)/emu_eval/test_chacha.elf
 
+emu_enc:	
+	$(MAKE) -C $(CCI_HOME)/csrc/emu_enc all       work_dir=$(work_dir)/emu_enc   emulator_dir=$(emulator_dir)
+	$(emulator_dir)/emulator -c -m 1700000 $(work_dir)/emu_enc/emu_enc.elf
+
+sim_vec:	
+	$(MAKE) -C $(CCI_HOME)/csrc/sim_vec all       work_dir=$(work_dir)/sim_vec
+
 synth_yosys: 
 	$(MAKE) -C $(synthesis_dir) all                work_dir=$(work_dir)/synth_yosys
 
