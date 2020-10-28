@@ -44,7 +44,7 @@
 .global chacha20_vec_v2
 chacha20_vec_v2:
 	# a2 = initial length in bytes
-        li t3, -1
+        li t3, 4
 	vsetvli t1, t3, e32
 
 	# initialize vector state
@@ -63,10 +63,6 @@ encrypt_blocks:
 	vslide1up.vx  v7, v8, a5
 
 	vmv4r.v v0, v4
-#	vmv.v.v v0, v4
-#	vmv.v.v v1, v5
-#	vmv.v.v v2, v6
-#	vmv.v.v v3, v7
 
 	li t2, 10 # loop counter
 round_loop:

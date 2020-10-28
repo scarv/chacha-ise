@@ -1,27 +1,51 @@
 %!TEX root=../paper.tex
+\subsection{Software Evaluation}
+
+\paragraph{Single block function performance}
+We firstly evaluate the performance of Chacha20's software block function using each proposed ISE variants in compared with a vanilla implementation (i.e., Baseline) based on the typical RV64IMA Architecture. The evaluation is shown in terms of Instruction count, Cycle count, and Instruction footprint of the Chacha20's block function.
 
 \begin{table}
-\caption{Comparison of chacha single block function performance changes
-with the base and ise variants.}
+\caption{Comparison of chacha single block function performance}
 \label{tab:res:sw:perf}
 \begin{tabular}{lccc}
 \toprule            
 Implementations        & Instruction count   & Cycle count & Instruction footprint\\
 
 \midrule
-Baseline RV64IMA       & 2214     & 2803  &  852 \\
-           + ISE $V_1$ &  434     & 1221  &  382 \\
-           + ISE $V_2$ &  514     & 1597  &  428 \\
-           + ISE $V_3$ &  594     & 1972  &  454 \\
-           + ISE $V_4$ &  464     & 1818  &  274 \\
+Baseline     & 2214     & 2803  &  852 \\
+ + ISE $V_1$ &  434     & 1221  &  382 \\
+ + ISE $V_2$ &  514     & 1597  &  428 \\
+ + ISE $V_3$ &  594     & 1972  &  454 \\
+ + ISE $V_4$ &  464     & 1818  &  274 \\
 
 \bottomrule
 \end{tabular}
 \end{table}
 
+\paragraph{Encryption/Decryption performance}
+We then implement a completed Chacha20 encryption/decryption operations using the proposed ISE $V_4$ to compare with the current Chacha encryption in BoringSSL, as a Baseline, and RISC-V vector instruction extension assisted implementations.
 
 \begin{table}
-\caption{Comparison of hardware overheads when synthesised for a
+\caption{Comparison of encryption/decryption performance in instruction count for different message sizes between the Baseline, the proposed ISE and different vectorization implementations}
+\label{tab:res:sw:perf}
+\begin{tabular}{rcccccc}
+\toprule             
+Message size & Baseline  & \multicolumn{2}{c}{128 bits} & 256 bits  &   ISE       \\
+             & BoringSSL & Vec $V_1$   &   Vec $V_2$    & Vec $V_1$ &   ISE $V_4$ \\
+\midrule
+  64 Bytes   &    2991   &    1998     &       654      &    1998   &   523       \\
+ 128 Bytes   &    5788   &    1998     &      1285      &    1998   &   989       \\
+ 256 Bytes   &   11382   &    1998     &      2547      &    1998   &  1921       \\
+ 512 Bytes   &   22768   &    3745     &      5071      &    1998   &  3785       \\
+1024 Bytes   &   45347   &    7239     &     10119      &    3745   &  7716       \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Hardware Evaluation}
+
+\begin{table}
+\caption{Comparison of hardware overheads between ISE variants when synthesised for a
 generic CMOS cell library}
 \label{tab:res:sw:hardcost1}
 \begin{tabular}{lcc}
@@ -54,3 +78,4 @@ RV64 Rocket Core &    98150     &   91  \\
 \bottomrule
 \end{tabular}
 \end{table}
+

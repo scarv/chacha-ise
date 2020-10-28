@@ -63,7 +63,12 @@ bool test_chacha(const uint8_t* data, size_t len, const uint8_t key[32], const u
     println_hex(vector2, 64);
     printf("inst_count=%d, inst/byte=%.02f\n", vec_v2_count, (float)(vec_v2_count)/len);
   }
-
+  
+  if (pass) {
+    printf("Ref = %d\n", boring_count);
+    printf("V_1 = %d\n", vec_v1_count);
+    printf("V_2 = %d\n", vec_v2_count);
+  }
   return pass;
 }
 
@@ -71,10 +76,10 @@ int main(int argc, uint8_t *argv[]) {
   extern uint32_t vlmax_u32();
   printf("VLMAX in blocks: %d\n", vlmax_u32());
 
-  int len = 64;
+  int len[5] = {64, 128, 256, 512, 1024};
   uint8_t data[1024];
   uint32_t rand = 1;
-  for (int i = 0; i < len; i++) {
+  for (int i = 0; i < 1024; i++) {
     rand *= 101;
     rand %= 16777213; // random prime
     data[i] = (uint8_t)(rand); 
@@ -82,9 +87,13 @@ int main(int argc, uint8_t *argv[]) {
   }
   uint8_t key[32] = "Setec astronomy;too many secrets";
   uint8_t nonce[12] = "BurnAfterUse";
-  int counter = 0;
 
-  bool pass = test_chacha(data, len, key, nonce, true);
+  bool pass=true;
+
+  for (int i = 0; i < 5; i++) { 
+    printf("Data length = %d\n", len[i]);
+    pass &= test_chacha(data, len[i], key, nonce, false);
+  }
 
   if (pass) {
     printf("chacha %s\n", pass_str);
