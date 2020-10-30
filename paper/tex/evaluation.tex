@@ -1,5 +1,4 @@
 %!TEX root=../paper.tex
-\subsection{Software Evaluation}
 
 \paragraph{Single block function performance}
 We firstly evaluate the performance of Chacha20's software block function using each proposed ISE variants in compared with a vanilla implementation (i.e., Baseline) based on the typical RV64IMA Architecture. The evaluation is shown in terms of Instruction count, Cycle count, and Instruction footprint of the Chacha20's block function.
@@ -38,43 +37,6 @@ Message size & Baseline  & \multicolumn{2}{c}{128 bits} & 256 bits  &   ISE     
  256 Bytes   &   11382   &    1998     &      2547      &    1998   &  1921       \\
  512 Bytes   &   22768   &    3745     &      5071      &    1998   &  3785       \\
 1024 Bytes   &   45347   &    7239     &     10119      &    3745   &  7716       \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Hardware Evaluation}
-
-\begin{table}
-\caption{Comparison of hardware overheads between ISE variants when synthesised for a
-generic CMOS cell library}
-\label{tab:res:sw:hardcost1}
-\begin{tabular}{lcc}
-\toprule            
-Implementations        & Size (NAND2 cells)    & Depth  \\
-
-\midrule
-           + ISE $V_1$ &     2353     & 56   \\
-           + ISE $V_2$ &     2494     & 41   \\
-           + ISE $V_3$ &     1362     & 25   \\
-           + ISE $V_4$ &     1617     & 19   \\
-
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}
-\caption{Comparison of hardware overheads between sub-modules}
-\label{tab:res:sw:hardcost2}
-\begin{tabular}{lcc}
-\toprule            
-Algorithm        &     Size (NAND2 cells)     & Depth \\
-
-\midrule
-RV64 Rocket Core &    98150     &   91  \\
-~~~~~|-- ALU     &     3719     &   28  \\
-~~~~~|-- Muldiv  &    17171     &   40  \\
-+ ISE $V_4$      &     1617     &   19  \\ 
-
 \bottomrule
 \end{tabular}
 \end{table}

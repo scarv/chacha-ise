@@ -1,12 +1,38 @@
 %!TEX root=../paper.tex
+\subsection{ISE Design}
 
-\subsection{Variant 1 ($V_1$)}
+This Subsection presents the design of ISE focusing on accelerating the operation of the Chacha cipher's block function. 
+The ISE assisted acceleration for the Chacha block function is fairly challenging especially for the scalar-register-based ISEs because 
+a) The block function was designed to be very efficient on a machines without dedicated hardware support. 
+b) The function computes on 32-bit state elements and two consecutive operations involves at least 3 state elements. 
+The latter prevents the acceleration using the scalar-register-based ISEs on 32-bit RISC-V architecture without the capable of having more than 2 source operands.
+Certainly, vector instructions are possible approaches to accelerating ChaCha. 
+But in this paper, we focused on the scalar-register-based ISE approaches on 64-bit RISC-V architecture instead. 
+This obviously provides a lower area overhead solution compared to vectorisation alternatives. 
+The 64-bit architecture allows each instructions packing more Chacha state elements (e.g. 2-source-operands instructions can input 4 Chacha state elements). 
+This enables the possibility of acceleration.
+
+Our ISE designs obey the wider RISC-V design principles. 
+This means they should support simple building-block operations, and their instruction encodings must be at most 2 source registers and 1 destination register. 
+By following that the proposed ISEs can be straightforwardly integrated into different existing RISC-V implementations.
+To ensure low area and latency overhead, the proposed ISEs follow further requirements: 
+a) The operation of ISE can be implemented to execute in one clock cycle in its hardware module. 
+b) The ISE must store operands and results in the RISC-V general-purpose scalar register file. 
+c) The ISE must not introduce special-purpose architectural state, nor rely on special-purpose micro-architectural state (e.g., registers, caches or scratch-pad memory).
+Overall, The proposed ISEs intentionally target at performing Chacha stream cipher on low(er)-end, resource-constrained (e.g., embedded) platforms. We view such a focus as reasonable, because existing work on adding cryptographic support to the standard vector extension [RV:19a,Section 21] already caters for high(er)-end alternatives. 
+
+We arrive at four ISE variants using the requirements, the description of which is split into an intuitive description in the following Subsections 
+
+\subsubsection{Variant 1 ($V_1$)}
+$V_1$ is based on a performance-oriented approach which aims at executing the Chacha's quarter round with a minimal number of ISE as possible. 
+Due to 1-destination-register constraint, the Chacha's quarter round can be executed at least two ISEs to compute 4 state elements of the quarter round.
+Therefore, we propose two ISEs as following:
 
 \begin{itemize}
 
 \INST{chacha20.v1.ad    rd, rs1, rs2}{
   uint32\xspace $a,b,c,d, ia, ib, ic,id, na,nd$; \;
-  $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $a \ASN \GPR[*][{{\VERB[ASM]{rs1}}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
   $b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
   $ia \ASN a + b; id \ASN (ia \XOR  d) \LRT 16;$;
   $ic \ASN c +id; ib \ASN (ic \XOR  b) \LRT12;$ \;
@@ -24,14 +50,16 @@
 }
 \end{itemize}
 
+Each instruction takes two 64-bit-register operands \VERB[ASM]{rs1} and \VERB[ASM]{rs2}, which each packs two 32-bit input elements of the Quarter Round function. \VERB[ASM]{rs1} contains inputs $A$ and $D$. \VERB[ASM]{rs2} contains inputs $B$ and $C$. \VERB{chacha20.v1.ad} (resp. \VERB{chacha20.v1.bc}) computes the outputs $A$ and $D$ (resp. $B$ and $C$) packed in its destination register \VERB[ASM]{rd}. 
+These ISEs are used to implement the Chacha's quarter round as in Algorithm~\ref{alg::qr::v1}.
 
 \begin{algorithm}
-\KwData  {64-bit values $X, Y$.
+\KwData  {64-bit values $X$ (packing inputs $A$, $D$) and $Y$ (packing inputs $B$, $C$).
 }
-\KwResult{64-bit values $X, Y$.
+\KwResult{64-bit values $X$ (packing outputs $A$, $D$) and $Y$ (packing outputs $B$, $C$).
 }
 \BlankLine
-\KwFn{$\ALG{chacha\_qr}( X, Y )$}{
+\KwFn{$\ALG{QUARTERROUND}( X, Y )$}{
   \VERB[ASM]{chacha20.v1.ad} X, X, Y \;
   \VERB[ASM]{chacha20.v1.bc} Y, X, Y \;
   $\KwRet{\TUPLE{ X, Y }}$ \;
@@ -41,23 +69,27 @@
 \end{algorithm}
 
 
-\subsection{Variant 2 ($V_2$)}
+\subsubsection{Variant 2 ($V_2$)}
+As focusing on performance, the implementation of $V_1$ can lead to an un-optimal area overhead of, in the worst case, four 32-bit \VERB{Xors} and three 32-bit \VERB{Additions}. $V_2$ present a trade-off approach to reduce area overhead by introduce 3 ISEs. 
+One ISE computes two intermediate values in the Chacha quarter round function from the input state elements.
+The other two ISEs calculates the output elements from the intermediate values and the input elements.
+These ISEs are able to share their computational hardware (e.g. adder). By doing so, the $V_2$ reduces the required number of 32-bit additions from three to two compared to $V_1$. The ISEs of $V_2$ are described as follows:
 
 \begin{itemize}
 
 \INST{chacha20.v2.bd    rd, rs1, rs2}{
   uint32\xspace $a,b,c,d, nb,nd$; \;
   $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
-  $b' \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; d' \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+  $b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
   $nd \ASN ((a + b) \XOR d) \LRT 16;$ 
-  $nb \ASN ((c +id) \XOR b) \LRT 12;$ \;
+  $nb \ASN ((c +nd) \XOR b) \LRT 12;$ \;
   $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nd;$ \;
 }
 
 \INST{chacha20.v2.ad    rd, rs1, rs2}{
   uint32\xspace $a,b',d',d, nb,nd$; \;
-  $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
-  $b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+  $a  \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d  \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b' \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; d' \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
   $na \ASN b' + (d \XOR (d' \LRT 16));$; 
   $nd \ASN (na \XOR d') \LRT 8;$ \;
   $\GPR[*][{\VERB[ASM]{rd}}] \ASN (na \LSH 32) \IOR nd;$ \;
@@ -65,23 +97,27 @@
 
 \INST{chacha20.v2.bc    rd, rs1, rs2}{
   uint32\xspace $a,b,c,d, t, na,nd$; \;
-  $a \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
-  $b \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
+  $a  \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32; d \ASN \GPR[*][{\VERB[ASM]{rs1}}];$
+  $b  \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; c \ASN \GPR[*][{\VERB[ASM]{rs2}}];$ \;
   $t  \ASN c + (d \LRT 24) \XOR a;$ \;
   $nc \ASN t + d; nb \ASN (nc \XOR ((b \XOR t) \LRT 12)) \LRT 7;$ \;
   $\GPR[*][{\VERB[ASM]{rd}}] \ASN (nb \LSH 32) \IOR nc;$ \;
 }
 \end{itemize}
 
+\VERB[ASM]{chacha20.v2.bd} computes the intermediate values packed in its destination resister \VERB[ASM]{rd} from 4 input elements $A$, $D$ (packed in \VERB[ASM]{rs1}), $B$ and $C$ (packed in \VERB[ASM]{rs2}).  \VERB{chacha20.v2.ad} (resp. \VERB{chacha20.v2.bc}) computes the outputs $A$ and $D$ (resp. $B$ and $C$) packed in its destination register \VERB[ASM]{rd} that is a similar packing scheme as in $V_1$. 
+The Chacha's quarter round can be implemented with 3 instructions as in Algorithm~\ref{alg::qr::v2}.
+
+
 \begin{algorithm}
-\KwData  {64-bit values $X, Y$.
+\KwData  {64-bit values $X$ (packing inputs $A$, $D$) and $Y$ (packing inputs $B$, $C$).
 }
-\KwResult{64-bit values $X, Y$.
+\KwResult{64-bit values $X$ (packing outputs $A$, $D$) and $Y$ (packing outputs $B$, $C$).
 }
 \BlankLine
-\KwFn{$\ALG{chacha\_qr}( X, Y )$}{
-  \VERB[ASM]{chacha20.v2.bd} Y, X, Y \;
-  \VERB[ASM]{chacha20.v2.ad} X, X, Y \;
+\KwFn{$\ALG{QUARTERROUND}( X, Y )$}{
+  \VERB[ASM]{chacha20.v2.bd} T, X, Y \;
+  \VERB[ASM]{chacha20.v2.ad} X, X, T \;
   \VERB[ASM]{chacha20.v2.bc} Y, X, Y \;
   $\KwRet{\TUPLE{ X, Y }}$ \;
 }
@@ -90,8 +126,12 @@
 \end{algorithm}
 
 
-\subsection{Variant 3 ($V_3$)}
-
+\subsubsection{Variant 3 ($V_3$)}
+$V_3$ introduces an area-efficiency-oriented approach which aims at favouring hardware re-usage between ISEs to reduce overall area overhead. 
+The approach is based on observing that the quarter round function can be split into two almost identical "top" and "bottom" halves. 
+Moreover, each half consists of almost identical operation sequence including addition, xor, and rotation.
+The only difference between these operation sequences is the left rotation amounts. 
+So, we invest four instructions to compute an entire quarter round as follows
 
 \begin{itemize}
 
@@ -128,13 +168,17 @@
 }
 \end{itemize}
 
+It can be seen that ISEs has a similar computational structure that allows to obtain an effective resource sharing for a low area cost implementation.
+The first two ISEs (i.e. \VERB[ASM]{chacha20.v3.ad0} and \VERB[ASM]{chacha20.v3.bc0}) are used to compute the top half of the quarter round while the other two ISEs computer the bottom halve.
+Again we use the similar packing scheme as in $V_1$ and $V_2$. So, the Chacha's quarter round can be implemented with 4 instructions as in Algorithm~\ref{alg::qr::v3}.
+
 \begin{algorithm}
-\KwData  {64-bit values $X, Y$.
+\KwData  {64-bit values $X$ (packing inputs $A$, $D$) and $Y$ (packing inputs $B$, $C$).
 }
-\KwResult{64-bit values $X, Y$.
+\KwResult{64-bit values $X$ (packing outputs $A$, $D$) and $Y$ (packing outputs $B$, $C$).
 }
 \BlankLine
-\KwFn{$\ALG{chacha\_qr}( X, Y )$}{
+\KwFn{$\ALG{QUARTERROUND}( X, Y )$}{
   \VERB[ASM]{chacha20.v3.ad0} X, X, Y \;
   \VERB[ASM]{chacha20.v3.bc0} Y, X, Y \;
   \VERB[ASM]{chacha20.v3.ad1} X, X, Y \;
@@ -146,7 +190,7 @@
 \end{algorithm}
 
 
-\subsection{Variant 4 ($V_4$)}
+\subsubsection{Variant 4 ($V_4$)}
 
 \begin{itemize}
 
@@ -216,3 +260,43 @@
 \caption{Chacha20's Half Round in Variant 4.}
 \label{alg::hr::v4}
 \end{algorithm}
+
+
+\subsection{Hardware Implementation}
+
+\begin{table}
+	\caption{Comparison of hardware overheads between ISE variants when synthesised for a
+		generic CMOS cell library}
+	\label{tab:res:sw:hardcost1}
+	\begin{tabular}{lcc}
+		\toprule            
+		Implementations        & Size (NAND2 cells)    & Depth  \\
+		
+		\midrule
+		+ ISE $V_1$ &     2353     & 56   \\
+		+ ISE $V_2$ &     2494     & 41   \\
+		+ ISE $V_3$ &     1362     & 25   \\
+		+ ISE $V_4$ &     1617     & 19   \\
+		
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}
+	\caption{Comparison of hardware overheads between sub-modules}
+	\label{tab:res:sw:hardcost2}
+	\begin{tabular}{lcc}
+		\toprule            
+		Algorithm        &     Size (NAND2 cells)     & Depth \\
+		
+		\midrule
+		RV64 Rocket Core &    98150     &   91  \\
+		~~~~~|-- ALU     &     3719     &   28  \\
+		~~~~~|-- Muldiv  &    17171     &   40  \\
+		+ ISE $V_4$      &     1617     &   19  \\ 
+		
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
