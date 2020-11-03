@@ -50,19 +50,19 @@ Therefore, we propose two ISEs as following:
 }
 \end{itemize}
 
-Each instruction takes two 64-bit-register operands \VERB[ASM]{rs1} and \VERB[ASM]{rs2}, which each packs two 32-bit input elements of the Quarter Round function. \VERB[ASM]{rs1} contains inputs $A$ and $D$. \VERB[ASM]{rs2} contains inputs $B$ and $C$. \VERB{chacha20.v1.ad} (resp. \VERB{chacha20.v1.bc}) computes the outputs $A$ and $D$ (resp. $B$ and $C$) packed in its destination register \VERB[ASM]{rd}. 
+Each instruction takes two 64-bit-register operands \VERB[ASM]{rs1} and \VERB[ASM]{rs2}, which each packs two 32-bit input elements of the Quarter Round function. \VERB[ASM]{rs1} contains inputs $iA$ and $iD$. \VERB[ASM]{rs2} contains inputs $iB$ and $iC$. \VERB{chacha20.v1.ad} (resp. \VERB{chacha20.v1.bc}) computes the outputs $oA$ and $oD$ (resp. $oB$ and $oC$) packed in its destination register \VERB[ASM]{rd}. 
 These ISEs are used to implement the Chacha's quarter round as in Algorithm~\ref{alg::qr::v1}.
 
 \begin{algorithm}
-\KwData  {64-bit values $X$ (packing inputs $A$, $D$) and $Y$ (packing inputs $B$, $C$).
+\KwData  {64-bit values $X=\{iA \CONS iD \}$ and $Y=\{iB \CONS iC \}$.
 }
-\KwResult{64-bit values $X$ (packing outputs $A$, $D$) and $Y$ (packing outputs $B$, $C$).
+\KwResult{64-bit values $R0$, $R1$ such that $R0=\{oA \CONS oD \}$ and $R1=\{oB \CONS oC \}$).
 }
 \BlankLine
 \KwFn{$\ALG{QUARTERROUND}( X, Y )$}{
-  \VERB[ASM]{chacha20.v1.ad} X, X, Y \;
-  \VERB[ASM]{chacha20.v1.bc} Y, X, Y \;
-  $\KwRet{\TUPLE{ X, Y }}$ \;
+  \VERB[ASM]{chacha20.v1.ad} R0, X, Y \;
+  \VERB[ASM]{chacha20.v1.bc} R1, X, Y \;
+  $\KwRet{\TUPLE{ R0, R1 }}$ \;
 }
 \caption{Chacha20's Quarter Round in Variant 1.}
 \label{alg::qr::v1}
@@ -105,21 +105,21 @@ These ISEs are able to share their computational hardware (e.g. adder). By doing
 }
 \end{itemize}
 
-\VERB[ASM]{chacha20.v2.bd} computes the intermediate values packed in its destination resister \VERB[ASM]{rd} from 4 input elements $A$, $D$ (packed in \VERB[ASM]{rs1}), $B$ and $C$ (packed in \VERB[ASM]{rs2}).  \VERB{chacha20.v2.ad} (resp. \VERB{chacha20.v2.bc}) computes the outputs $A$ and $D$ (resp. $B$ and $C$) packed in its destination register \VERB[ASM]{rd} that is a similar packing scheme as in $V_1$. 
+\VERB[ASM]{chacha20.v2.bd} computes the intermediate values packed in its destination resister \VERB[ASM]{rd} from 4 input elements $iA$, $iD$ (packed in \VERB[ASM]{rs1}), $iB$ and $iC$ (packed in \VERB[ASM]{rs2}).  \VERB{chacha20.v2.ad} (resp. \VERB{chacha20.v2.bc}) computes the outputs $oA$ and $oD$ (resp. $oB$ and $oC$) packed in its destination register \VERB[ASM]{rd} that is similar to the packing scheme in $V_1$. 
 The Chacha's quarter round can be implemented with 3 instructions as in Algorithm~\ref{alg::qr::v2}.
 
 
 \begin{algorithm}
-\KwData  {64-bit values $X$ (packing inputs $A$, $D$) and $Y$ (packing inputs $B$, $C$).
+\KwData  {64-bit values $X=\{iA \CONS iD \}$ and $Y=\{iB \CONS iC \}$.
 }
-\KwResult{64-bit values $X$ (packing outputs $A$, $D$) and $Y$ (packing outputs $B$, $C$).
+\KwResult{64-bit values $R0$, $R1$ such that $R0=\{oA \CONS oD \}$ and $R1=\{oB \CONS oC \}$).
 }
 \BlankLine
 \KwFn{$\ALG{QUARTERROUND}( X, Y )$}{
-  \VERB[ASM]{chacha20.v2.bd} T, X, Y \;
-  \VERB[ASM]{chacha20.v2.ad} X, X, T \;
-  \VERB[ASM]{chacha20.v2.bc} Y, X, Y \;
-  $\KwRet{\TUPLE{ X, Y }}$ \;
+  \VERB[ASM]{chacha20.v2.bd} T, X, Y  \;
+  \VERB[ASM]{chacha20.v2.ad} R0, X, T \;
+  \VERB[ASM]{chacha20.v2.bc} R1, R0, Y  \;
+  $\KwRet{\TUPLE{ R0, R1 }}$ \;
 }
 \caption{Chacha20's Quarter Round in Variant 2.}
 \label{alg::qr::v2}
@@ -173,17 +173,17 @@ The first two ISEs (i.e. \VERB[ASM]{chacha20.v3.ad0} and \VERB[ASM]{chacha20.v3.
 Again we use the similar packing scheme as in $V_1$ and $V_2$. So, the Chacha's quarter round can be implemented with 4 instructions as in Algorithm~\ref{alg::qr::v3}.
 
 \begin{algorithm}
-\KwData  {64-bit values $X$ (packing inputs $A$, $D$) and $Y$ (packing inputs $B$, $C$).
+\KwData  {64-bit values $X=\{iA \CONS iD \}$ and $Y=\{iB \CONS iC \}$.
 }
-\KwResult{64-bit values $X$ (packing outputs $A$, $D$) and $Y$ (packing outputs $B$, $C$).
+\KwResult{64-bit values $R0$, $R1$ such that $R0=\{oA \CONS oD \}$ and $R1=\{oB \CONS oC \}$).
 }
 \BlankLine
 \KwFn{$\ALG{QUARTERROUND}( X, Y )$}{
-  \VERB[ASM]{chacha20.v3.ad0} X, X, Y \;
-  \VERB[ASM]{chacha20.v3.bc0} Y, X, Y \;
-  \VERB[ASM]{chacha20.v3.ad1} X, X, Y \;
-  \VERB[ASM]{chacha20.v3.bc1} Y, X, Y \;
-  $\KwRet{\TUPLE{ X, Y }}$ \;
+  \VERB[ASM]{chacha20.v3.ad0} X', X, Y \;
+  \VERB[ASM]{chacha20.v3.bc0} Y', X, Y \;
+  \VERB[ASM]{chacha20.v3.ad1} R0, X', Y' \;
+  \VERB[ASM]{chacha20.v3.bc1} R1, X', Y' \;
+  $\KwRet{\TUPLE{ R0, R1 }}$ \;
 }
 \caption{Chacha20's Quarter Round in Variant 3.}
 \label{alg::qr::v3}
@@ -191,6 +191,7 @@ Again we use the similar packing scheme as in $V_1$ and $V_2$. So, the Chacha's 
 
 
 \subsubsection{Variant 4 ($V_4$)}
+$V_4$ follows a parallel oriented approach which is different from the above ISEs approaches. By observing two consecutive Chacha quarter rounds have a similar computational structure, we invest a calculation scheme so that two quarter rounds, called half round, can be performed simultaneously. So, a Chacha round can be perform with two half rounds instead of four quarter rounds. To perform the half round effectively, 5 ISEs including one addition instruction and 4 xor-then-rotation instructions are proposed as below:     
 
 \begin{itemize}
 
@@ -239,28 +240,65 @@ Again we use the similar packing scheme as in $V_1$ and $V_2$. So, the Chacha's 
 }
 \end{itemize}
 
+In these ISEs, each 64 bit source register packs 2 state elements which are at the same row and at two consecutive columns in a Chacha's state matrix and the corresponding two returned elements are packed in a destination register \VERB[ASM]{rd}. It can be viewed that the ISEs are vector-like instructions with the lenghth of two 32-bit elements. So, the Chacha's half round can be implemented (similarly to a quarter round) with 8 instructions as in Algorithm~\ref{alg::hr::v4}. $A$, $B$, $C$ and $D$ represent 4 rows of the Chacha's state matrix and the $c$ and $c+1$ subscript denote two consecutive columns.  
 
 \begin{algorithm}
-\KwData  {64-bit values $X, Y, Z, W$.
+\KwData  {64-bit values $X=\{iA_c \CONS iA_{c+1}\}$, $Y=\{iB_c \CONS iB_{c+1}\}$, $Z=\{iC_c \CONS iC_{c+1}\}$ and $W=\{iD_c \CONS iD_{c+1}\}$.
 }
-\KwResult{64-bit values $X, Y, Z, W$.
+\KwResult{64-bit values $R0=\{oA_c \CONS oA_{c+1}\}$, $R1=\{oB_c \CONS oB_{c+1}\}$, $R2=\{oC_c \CONS oC_{c+1}\}$ and $R3=\{oD_c \CONS oD_{c+1}\}$.
 }
 \BlankLine
-\KwFn{$\ALG{chacha\_hr}( X, Y, Z, W )$}{
-  \VERB[ASM]{chacha20.v4.add}        X, X, Y \;
-  \VERB[ASM]{chacha20.v4.xorrol.16}  W, W, X \;
-  \VERB[ASM]{chacha20.v4.add}        Z, Z, W \;
-  \VERB[ASM]{chacha20.v4.xorrol.12}  Y, Y, Z \;
-  \VERB[ASM]{chacha20.v4.add}        X, X, Y \;
-  \VERB[ASM]{chacha20.v4.xorrol.8}   W, W, X \;
-  \VERB[ASM]{chacha20.v4.add}        Z, Z, W \;
-  \VERB[ASM]{chacha20.v4.xorrol.7}   Y, Y, Z \;
-  $\KwRet{\TUPLE{ X, Y }}$ \;
+\KwFn{$\ALG{HALFROUND}( X, Y, Z, W )$}{
+  \VERB[ASM]{chacha20.v4.add}        X', X, Y  \;
+  \VERB[ASM]{chacha20.v4.xorrol.16}  W', W, X' \;
+  \VERB[ASM]{chacha20.v4.add}        Z', Z, W' \;
+  \VERB[ASM]{chacha20.v4.xorrol.12}  Y', Y, Z' \;
+  \VERB[ASM]{chacha20.v4.add}        R0, X', Y' \;
+  \VERB[ASM]{chacha20.v4.xorrol.8}   R3, W', R0 \;
+  \VERB[ASM]{chacha20.v4.add}        R2, Z', R3 \;
+  \VERB[ASM]{chacha20.v4.xorrol.7}   R1, Y', R2 \;
+  $\KwRet{\TUPLE{ R0, R1, R2, R3 }}$ \;
 }
 \caption{Chacha20's Half Round in Variant 4.}
 \label{alg::hr::v4}
 \end{algorithm}
 
+\subsubsection{Packing assisted ISEs}
+As the above ISEs work in packed mode, we consider packing instructions to help with this.
+The packing instructions can be used at the beginning of the Chacha round to pack 16 state elements which represent the state matrix into 8 working registers. 
+Moreover, ChaCha block function performs 20 rounds alternate between odd and even rounds. Between rounds, we must then re-pack the 8 registers  in order to the odd and even rounds can be executed with the same round function in software. The ISEs of $V_2$ are described as follows:
+
+\begin{itemize}
+
+\INST{pack    rd, rs1, rs2}{
+  uint32\xspace $r2l, r1l$; \;
+  $r2l \ASN \GPR[*][{\VERB[ASM]{rs2}}]; r1l \ASN \GPR[*][{\VERB[ASM]{rs1}}];$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (r2l \LSH 32) \IOR r1l;$ \;
+}
+
+\INST{packh    rd, rs1, rs2}{
+  uint32\xspace $r2h, r1h$; \;
+  $r2h \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; r1h \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (r2h \LSH 32) \IOR r1h;$ \;
+}
+
+\INST{packhl    rd, rs1, rs2}{
+  uint32\xspace $r2h, r1l$; \;
+  $r2h \ASN \GPR[*][{\VERB[ASM]{rs2}}] \RSH 32; r1l \ASN \GPR[*][{\VERB[ASM]{rs1}}];$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (r2h \LSH 32) \IOR r1l;$ \;
+}
+
+\INST{packlh    rd, rs1, rs2}{
+  uint32\xspace $r2l, r1h$; \;
+  $r2l \ASN \GPR[*][{\VERB[ASM]{rs2}}]; r1h \ASN \GPR[*][{\VERB[ASM]{rs1}}] \RSH 32;$ \;
+  $\GPR[*][{\VERB[ASM]{rd}}] \ASN (r2l \LSH 32) \IOR r1h;$ \; 
+}
+
+\end{itemize}
+
+These instructions are very similar to the pack* instructions in the Bitmanip extension [\ref{}] yet provide more flexible. 
+%It is noted that the area cost of these instructions can be very small and account for a negligible part of the overall area overhead of the proposed ISEs. 
+The Chacha round function using each ISE variants is implemented with different types of the packing instructions.
 
 \subsection{Hardware Implementation}
 

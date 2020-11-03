@@ -5,6 +5,19 @@
 	vmv.v.v         \a,  v31
 .endm
 
+.macro ROTLV1 a
+	vrgather.vv  v31, \a, v30
+	vmv.v.v         \a,  v31
+.endm
+.macro ROTLV2 a
+	vrgather.vv  v31, \a, v29
+	vmv.v.v         \a,  v31
+.endm
+.macro ROTLV3 a
+	vrgather.vv  v31, \a, v28
+	vmv.v.v         \a,  v31
+.endm
+
 .macro VROTL a r
 	vsll.vi v31, \a, \r
 	vsrl.vi \a, \a, 32-\r
@@ -47,6 +60,14 @@ chacha20_vec_v2:
         li t3, 4
 	vsetvli t1, t3, e32
 
+        la t0, ROTL1_Ind
+	# load vector V30 for rotation
+	vle32.v v30, (t0)  
+	addi t0, t0, 16
+        vle32.v v29, (t0)  
+	addi t0, t0, 16   
+        vle32.v v28, (t0)  
+
 	# initialize vector state
 	# Load 128 bit constant
         la t0, ChaChaConstant
@@ -71,17 +92,17 @@ round_loop:
 	CHACHA_FR v0, v1, v2, v3   
   
         # element rotation
-        ROTLV v1, 1
-        ROTLV v2, 2
-	ROTLV v3, 3
+        ROTLV1 v1
+        ROTLV2 v2
+	ROTLV3 v3
 
 	# Mix diagonals.
 	CHACHA_FR v0, v1, v2, v3
 
         # element rotation
-        ROTLV v1, 3
-        ROTLV v2, 2
-	ROTLV v3, 1
+        ROTLV3 v1
+        ROTLV2 v2
+	ROTLV1 v3
 	
 	addi t2, t2, -1
 	bnez t2, round_loop
@@ -132,3 +153,5 @@ return:
 .balign 8                 # align to 4 bytes
 ChaChaConstant:
 .word   0x61707865, 0x3320646e, 0x79622d32, 0x6b206574
+ROTL1_Ind:
+.word   1, 2, 3, 0,   2, 3, 0, 1,   3, 0, 1, 2
