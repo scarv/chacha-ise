@@ -1,27 +1,27 @@
 %!TEX root=../paper.tex
 \subsection{ISE Design}
 
-This Subsection presents the design of ISE focusing on accelerating the operation of the Chacha cipher's block function. 
+This Section presents the design of ISE focusing on accelerating the operation of the Chacha cipher's block function. 
 The ISE assisted acceleration for the Chacha block function is fairly challenging especially for the scalar-register-based ISEs because 
 a) The block function was designed to be very efficient on a machines without dedicated hardware support. 
-b) The function computes on 32-bit state elements and two consecutive operations involves at least 3 state elements. 
+b) The function computes on 32-bit state elements and two consecutive operations involve at least 3 state elements. 
 The latter prevents the acceleration using the scalar-register-based ISEs on 32-bit RISC-V architecture without the capable of having more than 2 source operands.
 Certainly, vector instructions are possible approaches to accelerating ChaCha. 
 But in this paper, we focused on the scalar-register-based ISE approaches on 64-bit RISC-V architecture instead. 
-This obviously provides a lower area overhead solution compared to vectorisation alternatives. 
+This provides a lower area overhead solution compared to vectorisation alternatives. 
 The 64-bit architecture allows each instructions packing more Chacha state elements (e.g. 2-source-operands instructions can input 4 Chacha state elements). 
 This enables the possibility of acceleration.
 
 Our ISE designs obey the wider RISC-V design principles. 
-This means they should support simple building-block operations, and their instruction encodings must be at most 2 source registers and 1 destination register. 
+This means the ISE designs should support simple building-block operations, and their instruction encodings must be at most 2 source registers and 1 destination register. 
 By following that the proposed ISEs can be straightforwardly integrated into different existing RISC-V implementations.
 To ensure low area and latency overhead, the proposed ISEs follow further requirements: 
 a) The operation of ISE can be implemented to execute in one clock cycle in its hardware module. 
 b) The ISE must store operands and results in the RISC-V general-purpose scalar register file. 
 c) The ISE must not introduce special-purpose architectural state, nor rely on special-purpose micro-architectural state (e.g., registers, caches or scratch-pad memory).
-Overall, The proposed ISEs intentionally target at performing Chacha stream cipher on low(er)-end, resource-constrained (e.g., embedded) platforms. We view such a focus as reasonable, because existing work on adding cryptographic support to the standard vector extension [RV:19a,Section 21] already caters for high(er)-end alternatives. 
+Overall, The proposed ISEs intentionally target at performing Chacha stream cipher on low(er)-end, resource-constrained (e.g., embedded) devices. The focus can be viewed reasonable, because existing work on adding cryptographic support to the standard vector extension [RV:19a,Section 21] already caters for high(er)-end alternatives. 
 
-We arrive at four ISE variants using the requirements, the description of which is split into an intuitive description in the following Subsections 
+We arrive at four ISE variants using the requirements, the design of which is split into an intuitive description in the following Subsections 
 
 \subsubsection{Variant 1 ($V_1$)}
 $V_1$ is based on a performance-oriented approach which aims at executing the Chacha's quarter round with a minimal number of ISE as possible. 
@@ -264,9 +264,9 @@ In these ISEs, each 64 bit source register packs 2 state elements which are at t
 \end{algorithm}
 
 \subsubsection{Packing assisted ISEs}
-As the above ISEs work in packed mode, we consider packing instructions to help with this.
+As the above ISEs work in packed mode, we present packing instructions to support packing manipulations.
 The packing instructions can be used at the beginning of the Chacha round to pack 16 state elements which represent the state matrix into 8 working registers. 
-Moreover, ChaCha block function performs 20 rounds alternate between odd and even rounds. Between rounds, we must then re-pack the 8 registers  in order to the odd and even rounds can be executed with the same round function in software. The ISEs of $V_2$ are described as follows:
+Moreover, Chacha block function performs 20 rounds alternate between odd and even rounds. Between rounds, we must then re-pack the registers in order to the odd and even rounds can be executed with the same round function in software. These instructions are very similar to the \VERB[ASM]{pack} instructions in the Bitmanip extension [\ref{}] yet provide more flexible. The packing assisted ISEs are described as follows:
 
 \begin{itemize}
 
@@ -296,45 +296,82 @@ Moreover, ChaCha block function performs 20 rounds alternate between odd and eve
 
 \end{itemize}
 
-These instructions are very similar to the pack* instructions in the Bitmanip extension [\ref{}] yet provide more flexible. 
 %It is noted that the area cost of these instructions can be very small and account for a negligible part of the overall area overhead of the proposed ISEs. 
-The Chacha round function using each ISE variants is implemented with different types of the packing instructions.
+The Chacha round function using each ISE variants is implemented with different types of the packing instructions. \REFTAB{tab:ise:pack} reports the packing operation overhead of four Chacha round variants in term of the number of instructions executed in functions. It can be seen that the packing scheme of the implementation using $V_4$ is more efficient compared to other three variants. 
+
+\begin{table}
+	\caption{The numbers of packing instructions are executed in four ISEs assisted Chacha's round functions}
+	\label{tab:ise:pack}
+	\begin{tabular}{lrrrr}
+		\toprule            
+		Instructions        & $V_1$ &  $V_2$ & $V_3$ & $V_4$ \\
+		
+		\midrule
+		\VERB[ASM]{pack}    &   4   &   4    &   4   &   0    \\
+		\VERB[ASM]{packh}   &   4   &   4    &   4   &   0    \\
+		\VERB[ASM]{packhl}  & 160   & 160    & 160   &   0    \\
+		\VERB[ASM]{packlh}  &   0   &   0    &   0   &  80    \\
+		
+		\bottomrule
+	\end{tabular}
+\end{table}
+
 
 \subsection{Hardware Implementation}
-
+\subsubsection{Implementation of ISE variants' submodule}
+We implement four Chacha ISE variants in their self-contained module. These modules are implemented purely using combinational logics that means all operations are executed in a clock cycle. Moreover, the modules have a similar simple interface which have two input, one output operands, and input decoded signals.
+The open source Yosys [\ref{}] synthesis tool are used with default settings to obtain post-synthesis circuit area overhead of the implemented modules in terms of NAND2 gate equivalents and circuit depths (in the form of gate delays). 
+%While more abstract than providing exact area and frequency results for a particular ASIC standard cell library, it is much easier to reproduce while still providing meaningful results [\ref{}]. 
+ 
 \begin{table}
-	\caption{Comparison of hardware overheads between ISE variants when synthesised for a
+	\caption{Comparison of area overheads between ISE variants when synthesised for a
 		generic CMOS cell library}
-	\label{tab:res:sw:hardcost1}
+	\label{tab:res:hardcost1}
 	\begin{tabular}{lcc}
 		\toprule            
-		Implementations        & Size (NAND2 cells)    & Depth  \\
+		Implementations        & Size (NAND2 gates)    & Depth  \\
 		
 		\midrule
-		+ ISE $V_1$ &     2353     & 56   \\
-		+ ISE $V_2$ &     2494     & 41   \\
-		+ ISE $V_3$ &     1362     & 25   \\
-		+ ISE $V_4$ &     1617     & 19   \\
+		$V_1$ &     2353     & 56   \\
+		$V_2$ &     2494     & 41   \\
+		$V_3$ &     1362     & 25   \\
+		$V_4$ &     1617     & 19   \\
 		
 		\bottomrule
 	\end{tabular}
 \end{table}
 
+\REFTAB{tab:res:hardcost1} reports the comparison of area overheads between ISE variants. It can be seen that the $V_3$ and $V_4$ consume lower numbers of NAND2 gates and a shorter circuit depths compared to $V_1$ and $V_2$. $V_3$ uses smallest number of NAND2 gates which is slightly better than that of $V_4$ while $V_4$ results in a shortest circuit depths. Moreover, the comparison of the ISE variants' performance on the Chacha round function in software is considered and given in \REFSEC{sec:eval:blk}.
+
+\subsubsection{Integration of Chacha ISE into a 64-bit RISC-V processor}
+\label{sec:ise:hw:sys}
+To evaluate the proposed ISE variants, each of the ISE variant is integrated into a 64-bit RISC-V host core. 
+We opt for a well-known Rocket core \cite{} as the host core for Chacha ISEs. 
+The Rocket core is a highly configurable RISC-V core which executes instructions using a 5-stage, in-order pipeline. 
+We take advantage of this to configure for a core supporting RV64IMC instruction set, i.e., the 64-bit [RV:19a, Section 5]) base integer ISA plus standard Multiplication [RV:19a, Section 7] and Compressed [RV:19a, Section16] extensions. It is also configured to support an instruction cache, a data cache,and a branch prediction mechanism, but no floating-point support.
+To support Chacha ISE, The Rocket core have additional configuration to support custom instructions, for which we choose th CUSTOM 0 opcode [\cite{}], to decode the Chacha ISE and have a Rocket Custom Coprocessor (RoCC) interface [\cite{}] which access Chacha ISE implementation submodules to execute instructions. Since the ISE variants' implementations 
+comply with at most 2 source and 1 destination operands requirement, no further structural modification is required in micro-architecture. 
+
 \begin{table}
-	\caption{Comparison of hardware overheads between sub-modules}
-	\label{tab:res:sw:hardcost2}
+	\caption{Area overheads of Chacha ISE integration compared to Rocket core and its sub-modules}
+	\label{tab:res:hardcost2}
 	\begin{tabular}{lcc}
 		\toprule            
-		Algorithm        &     Size (NAND2 cells)     & Depth \\
+		Algorithm        &     Size (NAND2 gates)       & Depth \\
 		
 		\midrule
-		RV64 Rocket Core &    98150     &   91  \\
-		~~~~~|-- ALU     &     3719     &   28  \\
-		~~~~~|-- Muldiv  &    17171     &   40  \\
-		+ ISE $V_4$      &     1617     &   19  \\ 
+		RV64 Rocket Core         &    98150 (100\%)     &  153  \\
+		~~~~~|-- ALU             &     3719  (03.78\%)  &   28  \\
+		~~~~~|-- Muldiv          &    17171  (17.49\%)  &   40  \\
+		~~~~~|-- Others          &    77260  (78.71\%)  &    -  \\
+		RV64 Rocket + Chacha ISE &    99767 (101.65\%)  &  153  \\ 
 		
 		\bottomrule
 	\end{tabular}
 \end{table}
+
+
+Again, we use the Yosys tool to obtain post-synthesis circuit area of the integrated system including the Rocket core and the Chacha ISE submodule. \REFTAB{tab:res:hardcost1} reports the area overheads of the Chacha ISE submodule in the system in comparison to the Rocket core and its submodules, e.g. Multiplier/divisor (Muldiv), ALU. The implementation of $V_4$ is chosen for the Chacha ISE submodule to report in the table because it gains the best tradeoff between area overhead (see \REFTAB{tab:res:hardcost1}) and software performance (see \REFTAB{tab:res:sw:perf}). As can be seen, the Chacha ISE causes a negligible area overhead for the system and its overhead is significantly smaller compared to other functional submodules such as ALU, Muldiv. Moreover, the Chacha ISE does not affect to the overall circuit depth of the system.
+
 
 

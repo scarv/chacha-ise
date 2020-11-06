@@ -1,36 +1,45 @@
 %!TEX root=../paper.tex
 
-\paragraph{Single block function performance}
-We firstly evaluate the performance of Chacha20's software block function using each proposed ISE variants in compared with a vanilla implementation (i.e., Baseline) based on the typical RV64IMA Architecture. The evaluation is shown in terms of Instruction count, Cycle count, and Instruction footprint of the Chacha20's block function.
+\subsection{Single block function performance}
+\label{sec:eval:blk}
+We firstly evaluate the accelerated implementations of Chacha20's software block function in compared with a vanilla function used in OpenSSL as a Baseline. The four accelerated functions, denoted as $V_1$, $V_2$, $V_3$ and $V_4$, use the corresponding Chacha ISE variant set to accelerate their round operations. 
+Because Chacha ISEs is encoded as R-type instructions, the accelerated functions easily use assembly RISC-V directives \VERB[asm]{.insn} to invoke Chacha ISEs without the requirement of building modified toolchains.   
+For a comparison's sake, all accelerated and baseline functions have the same funtion prototype and looping scheme (i.e. 10 rounds each of which includes an odd and an even rounds). 
+They are complied with RISC-V gcc version 9.2.0, compiled performance optimisation flag (`-02') and targeting for RV64IMC architecture (`-march=rv64imc -mabi=lp64'). 
+We use an open source Verilator tool compiling the verilog files of the integrated system (mentioned in \REFSEC{sec:ise:hw:sys}) including a Rocket core and Chacha ISEs to generate a cycle-accurate behavioral emulator for the system. The generated emulator is used to evaluate the performace of the software block functions.  
 
 \begin{table}
 \caption{Comparison of chacha single block function performance}
-\label{tab:res:sw:perf}
+\label{tab:res:sw:perf1}
 \begin{tabular}{lccc}
 \toprule            
 Implementations        & Instruction count   & Cycle count & Instruction footprint\\
 
 \midrule
-Baseline     & 2214     & 2803  &  852 \\
- + ISE $V_1$ &  434     & 1221  &  382 \\
- + ISE $V_2$ &  514     & 1597  &  428 \\
- + ISE $V_3$ &  594     & 1972  &  454 \\
- + ISE $V_4$ &  464     & 1818  &  274 \\
+Baseline     & 2214 ($1\times$)  & 2803 ($1\times$)    &  852 ($1\times$)  \\
+ $V_1$ &  434 ($0.20\times$)     & 1221 ($0.44\times$) &  382 ($0.45\times$) \\
+ $V_2$ &  514 ($0.23\times$)     & 1597 ($0.57\times$) &  428 ($0.50\times$)\\
+ $V_3$ &  594 ($0.27\times$)     & 1972 ($0.70\times$) &  454 ($0.53\times$)\\
+ $V_4$ &  464 ($0.21\times$)     & 1818 ($0.65\times$) &  274 ($0.32\times$)\\
 
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Encryption/Decryption performance}
+The evaluation is shown in \REFTAB{tab:res:sw:perf1} in terms of Instruction count, Cycle count, and Instruction footprint (in Bytes) of the Chacha20's block function. As can be seen, the accelerated functions have significantly reduced instruction counts, about $0.2\times$, compared to the baseline. Even though the cycle counts are also reduced in the case of the accelerated functions (about $0.4\times$-$0.7\times$ compared to the baseline), but the reduction in cycle count metrics is not as good as in instruciton count metrics. This could be due to inefficient data forwarding operations supporting Chacha ISEs via the RoCC interface in the Rocket core micro-architecture. It should be noted that the operation of every Chacha ISEs is computer in one clock cycle. One can view that is a tradeoff between ineffective performance and invarsiveness avoiding micro-architectural modifications.
+
+Comparing the ISE variants, $V_4$ obtains a good tradeoff solution which provides a low Instruction footprint and Instruction count of $0.32\times$ and $0.21\times$, respectively, compared to the baseline, and consumes a small area overhead (see \REFTAB{tab:res:hardcost1}).
+
+\subsection{Encryption/Decryption performance}
 We then implement a completed Chacha20 encryption/decryption operations using the proposed ISE $V_4$ to compare with the current Chacha encryption in BoringSSL, as a Baseline, and RISC-V vector instruction extension assisted implementations.
 
 \begin{table}
 \caption{Comparison of encryption/decryption performance in instruction count for different message sizes between the Baseline, the proposed ISE and different vectorization implementations}
-\label{tab:res:sw:perf}
+\label{tab:res:sw:perf2}
 \begin{tabular}{rcccccc}
 \toprule             
-Message size & Baseline  & \multicolumn{2}{c}{128 bits} & 256 bits  &   ISE       \\
-             & BoringSSL & Vec $V_1$   &   Vec $V_2$    & Vec $V_1$ &   ISE $V_4$ \\
+Message size & Baseline  & \multicolumn{2}{c}{128 bits Vector} & 256 bits Vector  &   ISE       \\
+             & BoringSSL & Vec $V_1$   &   Vec $V_2$    & Vec $V_1$ &   $V_4$ \\
 \midrule
   64 Bytes   &    2991   &    1998     &       654      &    1998   &   523       \\
  128 Bytes   &    5788   &    1998     &      1285      &    1998   &   989       \\

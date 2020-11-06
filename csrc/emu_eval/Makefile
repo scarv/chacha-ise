@@ -18,7 +18,7 @@ DISASM  = $(work_dir)/test_chacha.disasm
 
 all: $(OUTPUT) $(DISASM)
 
-CCFLAGS+=-static -nostdlib -nostartfiles -lm -lgcc -T $(hal_dir)/test.ld 
+CCFLAGS+=-march=rv64imc -mabi=lp64 -nostdlib -nostartfiles -lm -lgcc -T $(hal_dir)/test.ld 
 
 $(OUTPUT) : $(SRCS)
 	mkdir -p $(work_dir)
