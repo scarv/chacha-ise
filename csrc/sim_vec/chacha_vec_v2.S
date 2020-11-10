@@ -54,19 +54,21 @@
 # a3 = uint8_t key[32]
 # a4 = uint8_t nonce[12]
 # a5 = uint32_t counter
+#touched v0,v1,v2,v3,  v4,v5,v6,v7, v28,v29,v30,v31
 .global chacha20_vec_v2
 chacha20_vec_v2:
 	# a2 = initial length in bytes
+
+#ifdef VLEN128
         li t3, 4
 	vsetvli t1, t3, e32
-
-        la t0, ROTL1_Ind
-	# load vector V30 for rotation
+        la t0, ROTL_Ind
+	# load vector v30, v29, v28 for rotation left 1,2,3 elements
 	vle32.v v30, (t0)  
 	addi t0, t0, 16
         vle32.v v29, (t0)  
 	addi t0, t0, 16   
-        vle32.v v28, (t0)  
+        vle32.v v28, (t0) 
 
 	# initialize vector state
 	# Load 128 bit constant
@@ -78,10 +80,47 @@ chacha20_vec_v2:
 	vle32.v v6, (t0)
 	# Load nonce
 	vle32.v v8, (a4)
+#else
+        li t3, 8
+	vsetvli t1, t3, e32
+        la t0, ROTL_Ind
+	# load vector v30, v29, v28 for rotation left 1,2,3 elements
+	vle32.v v30, (t0)  
+	addi t0, t0, 32
+        vle32.v v29, (t0)  
+	addi t0, t0, 32   
+        vle32.v v28, (t0) 
+
+        la t0, V256_Ind
+	# load vector v26, v27 for vector extension and loading input data
+	vle32.v v26, (t0)  
+	addi t0, t0, 32
+        vle32.v v27, (t0)  
+
+	# initialize vector state
+	# Load 128 bit constant
+        la t0, ChaChaConstant
+	vle32.v v4, (t0)
+
+	# Load key
+	vle32.v v1, (a3)
+	vrgather.vv   v5, v1, v26
+        vslidedown.vi v2, v1, 4
+	vrgather.vv   v6, v2, v26
+	# Load nonce
+	vle32.v v8, (a4)
+#endif
       
 encrypt_blocks:
 	# update counter
+#ifdef VLEN128
 	vslide1up.vx  v7, v8, a5
+#else
+	addi t1, a5, 1
+	vslide1up.vx  v1, v8, t1
+	vrgather.vv   v7, v1, v26
+	vmv.s.x       v7, a5
+#endif
 
 	vmv4r.v v0, v4
 
@@ -100,8 +139,8 @@ round_loop:
 	CHACHA_FR v0, v1, v2, v3
 
         # element rotation
-        ROTLV3 v1
-        ROTLV2 v2
+	ROTLV3 v1
+	ROTLV2 v2
 	ROTLV1 v3
 	
 	addi t2, t2, -1
@@ -114,7 +153,8 @@ round_loop:
 	vadd.vv v2, v2, v6
 	vadd.vv v3, v3, v7
 
-
+#ifdef VLEN128
+	# loading input data
 	vle32.v v16, (a1)
 	addi    t0,   a1,   16
 	vle32.v v17, (t0)
@@ -138,13 +178,43 @@ round_loop:
 	vse32.v v19, (t0)
 
 	# update counters/pointers
-	li   t0, 64 # current VL in bytes
+	addi a5, a5, 1  # increment counter
+	li   t0, 64     # current VL in bytes
+#else
+	# loading input data
+	vlxei32.v v16, (a1), v27
+	addi    t0,   a1,   16
+	vlxei32.v v17, (t0), v27
+	addi    t0,   t0,   16
+	vlxei32.v v18, (t0), v27
+	addi    t0,   t0,   16
+	vlxei32.v v19, (t0), v27
+
+	# xor in state
+	vxor.vv v16, v16, v0
+	vxor.vv v17, v17, v1
+	vxor.vv v18, v18, v2
+	vxor.vv v19, v19, v3
+
+	vsxei32.v v16, (a0), v27
+	addi    t0,   a0,   16
+	vsxei32.v v17, (t0), v27
+	addi    t0,   t0,   16
+	vsxei32.v v18, (t0), v27
+	addi    t0,   t0,   16
+	vsxei32.v v19, (t0), v27
+
+	# update counters/pointers
+	addi a5, a5, 2  # increment counter
+	li   t0, 128    # current VL in bytes 
+#endif
+	# update pointers
 	add  a0, a0, t0 # advance output pointer
 	add  a1, a1, t0 # advance input pointer
 	sub  a2, a2, t0 # decrement remaining bytes
-	addi a5, a5, 1 # increment counter
 
-	bnez a2, encrypt_blocks
+
+	bgt a2, x0, encrypt_blocks
 
 return:
 	ret
@@ -153,5 +223,18 @@ return:
 .balign 8                 # align to 4 bytes
 ChaChaConstant:
 .word   0x61707865, 0x3320646e, 0x79622d32, 0x6b206574
-ROTL1_Ind:
+.word   0x61707865, 0x3320646e, 0x79622d32, 0x6b206574
+
+#ifdef VLEN128
+ROTL_Ind:
 .word   1, 2, 3, 0,   2, 3, 0, 1,   3, 0, 1, 2
+#else
+V256_Ind: 
+.word   0, 1, 2, 3, 0, 1, 2, 3
+.word   0, 4, 8,12,64,68,72,76
+
+ROTL_Ind:
+.word   1, 2, 3, 0, 5, 6, 7, 4  
+.word   2, 3, 0, 1, 6, 7, 4, 5   
+.word   3, 0, 1, 2, 7, 4, 5, 6
+#endif
