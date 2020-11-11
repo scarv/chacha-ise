@@ -8,7 +8,7 @@ SRCS = test.c chacha_openssl.c chacha_isa.S chacha_vec_v1.S chacha_vec_v2.S \
 
 RISCV_GCC_OPTS ?= -DPREALLOCATE=1 -mcmodel=medany -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf
 
-CCFLAGS += -march=$(ISA) -static -lm -lgcc
+CCFLAGS += -march=$(ISA) -lm -lgcc
 	
 OUTPUT  = $(work_dir)/sim_vec.elf
 DISASM  = $(work_dir)/sim_vec.disasm

@@ -1,0 +1,10 @@
+%!TEX root=../paper.tex
+In this paper, we presented the design, implementation, and evaluation of four ISE variants to support ChaCha20 stream cipher on 64-bit RISC-V architecture; 
+We shows that our proposed ISE variants help improve significantly the efficiency of ChaCha block function wrt. both execution latency and memory footprint.  
+Our ISE-assisted implementation of ChaCha encryption have a considerable improvement in instruction counts which reduce to $0.18\times$ and $0.29\times$ that of the OpenSSL baseline and ISA-base optimised implementation, respectively. 
+For encrypting short messages, the ISE-assisted implementation gains a comparative performance compared to the vectorised implementations which demands a large hardware overhead to support vector instruction extension.
+Moreover, the ISE hardware implementation only causes a negligible increased area overhead, about 2\%, on the 64-bit Rocket Core processor that makes our ChaCha ISE be suitable for resource-constrained (embedded) processors.
+
+
+
+

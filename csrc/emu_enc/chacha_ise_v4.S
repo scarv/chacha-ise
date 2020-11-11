@@ -41,9 +41,9 @@ instruction_counter:
 #define tt6 s10
 #define tt7 s11
 
-.option push
-.option norvc
-.balign 4
+#.option push
+#.option norvc
+#.balign 4
 # Using the same order as the boring chacha arguments:
 # a0 = uint8_t *out
 # a1 = uint8_t *in
@@ -53,22 +53,22 @@ instruction_counter:
 # a5 = uint32_t counter
 .global chacha20_ise_v4
 chacha20_ise_v4:
-    addi    sp, sp, -60                    // Allocate stack space.
+    addi    sp, sp, -128                   // Allocate stack space.
 
-    sw      s0 , 0(sp)
-    sw      s1 , 4(sp)
-    sw      s2 , 8(sp)
-    sw      s3 ,12(sp)
-    sw      s4 ,16(sp)
-    sw      s5 ,20(sp)
-    sw      s6 ,24(sp)
-    sw      s7 ,28(sp)
-    sw      s8 ,32(sp)
-    sw      s9 ,36(sp)
-    sw      s10,40(sp)
-    sw      s11,44(sp)
-    sw      a0 ,48(sp)
-    sw      a1 ,52(sp)
+    sd      s0 , 0(sp)
+    sd      s1 , 8(sp)
+    sd      s2 ,16(sp)
+    sd      s3 ,24(sp)
+    sd      s4 ,32(sp)
+    sd      s5 ,40(sp)
+    sd      s6 ,48(sp)
+    sd      s7 ,56(sp)
+    sd      s8 ,64(sp)
+    sd      s9 ,72(sp)
+    sd      s10,80(sp)
+    sd      s11,88(sp)
+    sd      a0 ,96(sp)
+    sd      a1 ,104(sp)
 
 	# initialize vector state
 	# Load 4*32 bit constant        
@@ -79,7 +79,7 @@ chacha20_ise_v4:
 	ld t1, 8(a6)
 
 	# Load 8* 32 key
-    ld t2, 0(a3)
+	ld t2, 0(a3)
 	ld t3, 8(a3)
 	ld t4,16(a3)
 	ld t5,24(a3)
@@ -87,11 +87,11 @@ chacha20_ise_v4:
 	# Load nonce & counter=0
 	lw t6, 0(a4)
 	slli t6, t6, 32
-    add t6, t6, a5  # add counter
-    lw tt2, 4(a4)
-    lw a7, 8(a4)
+	add t6, t6, a5  # add counter
+	lw tt2, 4(a4)
+	lw a7, 8(a4)
 	slli a7, a7, 32
-    xor  a7, a7, tt2
+	xor  a7, a7, tt2
 encrypt_blocks:
 
     mv s0, t0
@@ -148,27 +148,18 @@ round_loop:
 	xor tt2, tt2, s3
 	sd  tt2,24(a0)
 	ld  tt2,32(a1)
-    xor tt2, tt2, s4
+	xor tt2, tt2, s4
 	sd  tt2,32(a0)
 	ld  tt2,40(a1)
-    xor tt2, tt2, s5
+	xor tt2, tt2, s5
 	sd  tt2,40(a0)
 	ld  tt2,48(a1)
-    xor tt2, tt2, s6
+	xor tt2, tt2, s6
 	sd  tt2,48(a0)
 	ld  tt2,56(a1)
-    xor tt2, tt2, s7
+	xor tt2, tt2, s7
 	sd  tt2,56(a0)
 
-#	sd  t0, 0(a0)
-#	sd  t1, 8(a0)
-#	sd  t2,16(a0)
-#	sd  t3,24(a0)
-#	sd  t4,32(a0)
-#	sd  t5,40(a0)
-#	sd  t6,48(a0)
-#	sd  a7,56(a0)
- 
 	# update counters/pointers
 	addi a0, a0, 64 # advance output pointer
 	addi a1, a1, 64 # advance input pointer
@@ -178,24 +169,24 @@ round_loop:
 	# loop again if we have remaining blocks
 	bnez a2, encrypt_blocks
 
-    lw      s0 , 0(sp)
-    lw      s1 , 4(sp)
-    lw      s2 , 8(sp)
-    lw      s3 ,12(sp)
-    lw      s4 ,16(sp)
-    lw      s5 ,20(sp)
-    lw      s6 ,24(sp)
-    lw      s7 ,28(sp)
-    lw      s8 ,32(sp)
-    lw      s9 ,36(sp)
-    lw      s10,40(sp)
-    lw      s11,44(sp)
-    lw      a0 ,48(sp)
-    lw      a1 ,52(sp)
-    
-    addi    sp, sp, 60                    // de-Allocate stack space.
+    ld      s0 , 0(sp)
+    ld      s1 , 8(sp)
+    ld      s2 ,16(sp)
+    ld      s3 ,24(sp)
+    ld      s4 ,32(sp)
+    ld      s5 ,40(sp)
+    ld      s6 ,48(sp)
+    ld      s7 ,56(sp)
+    ld      s8 ,64(sp)
+    ld      s9 ,72(sp)
+    ld      s10,80(sp)
+    ld      s11,88(sp)
+    ld      a0 ,96(sp)
+    ld      a1 ,104(sp)
+ 
+    addi    sp, sp, 128                    // de-Allocate stack space.
 
-	ret
+ret
 
 .section .data
 .balign 8                 # align to 4 bytes
