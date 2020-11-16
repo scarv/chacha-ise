@@ -59,12 +59,12 @@ These ISEs are used to implement the ChaCha quarter round as in Algorithm~\ref{a
 \KwResult{64-bit values $R0$, $R1$ such that $R0=\{oA \CONS oD \}$ and $R1=\{oB \CONS oC \}$).
 }
 \BlankLine
-\KwFn{$\ALG{QUARTERROUND}( X, Y )$}{
+\KwFn{$\ALG{QuarterRound}( X, Y )$}{
   \VERB[ASM]{chacha20.v1.ad} R0, X, Y \;
   \VERB[ASM]{chacha20.v1.bc} R1, X, Y \;
   $\KwRet{\TUPLE{ R0, R1 }}$ \;
 }
-\caption{Chacha20's Quarter Round in Variant 1.}
+\caption{ChaCha Quarter Round in the Variant 1.}
 \label{alg::qr::v1}
 \end{algorithm}
 
@@ -115,13 +115,13 @@ The ChaCha quarter round can be implemented with 3 instructions as in Algorithm~
 \KwResult{64-bit values $R0$, $R1$ such that $R0=\{oA \CONS oD \}$ and $R1=\{oB \CONS oC \}$).
 }
 \BlankLine
-\KwFn{$\ALG{QUARTERROUND}( X, Y )$}{
+\KwFn{$\ALG{QuarterRound}( X, Y )$}{
   \VERB[ASM]{chacha20.v2.bd} T, X, Y  \;
   \VERB[ASM]{chacha20.v2.ad} R0, X, T \;
   \VERB[ASM]{chacha20.v2.bc} R1, R0, Y  \;
   $\KwRet{\TUPLE{ R0, R1 }}$ \;
 }
-\caption{Chacha20's Quarter Round in Variant 2.}
+\caption{ChaCha Quarter Round in the Variant 2.}
 \label{alg::qr::v2}
 \end{algorithm}
 
@@ -178,14 +178,14 @@ Again we use the similar packing scheme as in $V_1$ and $V_2$. So, the ChaCha qu
 \KwResult{64-bit values $R0$, $R1$ such that $R0=\{oA \CONS oD \}$ and $R1=\{oB \CONS oC \}$).
 }
 \BlankLine
-\KwFn{$\ALG{QUARTERROUND}( X, Y )$}{
+\KwFn{$\ALG{QuarterRound}( X, Y )$}{
   \VERB[ASM]{chacha20.v3.ad0} X', X, Y \;
   \VERB[ASM]{chacha20.v3.bc0} Y', X, Y \;
   \VERB[ASM]{chacha20.v3.ad1} R0, X', Y' \;
   \VERB[ASM]{chacha20.v3.bc1} R1, X', Y' \;
   $\KwRet{\TUPLE{ R0, R1 }}$ \;
 }
-\caption{Chacha20's Quarter Round in Variant 3.}
+\caption{ChaCha Quarter Round in the Variant 3.}
 \label{alg::qr::v3}
 \end{algorithm}
 
@@ -248,7 +248,7 @@ In these ISEs, each 64 bit source register packs 2 state elements which are at t
 \KwResult{64-bit values $R0=\{oA_c \CONS oA_{c+1}\}$, $R1=\{oB_c \CONS oB_{c+1}\}$, $R2=\{oC_c \CONS oC_{c+1}\}$ and $R3=\{oD_c \CONS oD_{c+1}\}$.
 }
 \BlankLine
-\KwFn{$\ALG{HALFROUND}( X, Y, Z, W )$}{
+\KwFn{$\ALG{HalfRound}( X, Y, Z, W )$}{
   \VERB[ASM]{chacha20.v4.add}        X', X, Y  \;
   \VERB[ASM]{chacha20.v4.xorrol.16}  W', W, X' \;
   \VERB[ASM]{chacha20.v4.add}        Z', Z, W' \;
@@ -259,7 +259,7 @@ In these ISEs, each 64 bit source register packs 2 state elements which are at t
   \VERB[ASM]{chacha20.v4.xorrol.7}   R1, Y', R2 \;
   $\KwRet{\TUPLE{ R0, R1, R2, R3 }}$ \;
 }
-\caption{Chacha20's Half Round in Variant 4.}
+\caption{ChaCha Half Round in the Variant 4.}
 \label{alg::hr::v4}
 \end{algorithm}
 
@@ -354,22 +354,22 @@ comply with at most 2 source and 1 destination operands requirement, no further 
 \begin{table}
 	\caption{Area overheads of ChaCha ISE integration compared to Rocket core and its sub-modules}
 	\label{tab:res:hardcost2}
-	\begin{tabular}{lrlr}
+	\begin{tabular}{lrr}
 		\toprule            
-		Algorithm        &     \multicolumn{2}{c}{Size (NAND2 gates)}       & Depth \\
+		Algorithm        &     Size (NAND2 gates)       & Depth \\
 		
 		\midrule
-		RV64 Rocket Core               &    98150 & (100.00\%)     &  153  \\
-		~~~~~|-- ALU                   &     3719 & (03.78\%)  &   28  \\
-		~~~~~|-- Muldiv                &    17171 & (17.49\%)  &   40  \\
-		~~~~~|-- Others                &    77260 & (78.71\%)  &    -  \\
-		RV64 Rocket + RoCC(ChaCha ISE) &   100101 & (101.99\%)  &  153  \\ 
+		RV64 Rocket Core               &    98150 (1.00$\times$)  &  153  \\
+		~~~~~|-- ALU                   &     3719 (0.04$\times$)  &   28  \\
+		~~~~~|-- Muldiv                &    17171 (0.17$\times$)  &   40  \\
+		~~~~~|-- Others                &    77260 (0.79$\times$)  &    -  \\
+		RV64 Rocket + RoCC(ChaCha ISE) &   100101 (1.02$\times$)  &  153  \\ 
 		
 		\bottomrule
 	\end{tabular} 
 \end{table}
 
-Again, we use the Yosys tool to obtain post-synthesis circuit area of the integrated system including the Rocket core and the ChaCha ISE submodule. \REFTAB{tab:res:hardcost1} reports the area overheads of the Chacha ISE submodule in the system in comparison to the Rocket core and its submodules, e.g. Multiplier/divisor (Muldiv), ALU. The implementation of $V_4$ is chosen for the ChaCha ISE submodule to report in the table because it gains the best trade-off between area overhead (see \REFTAB{tab:res:hardcost1}) and software performance (see \REFTAB{tab:res:sw:perf1}). As can be seen, the ChaCha ISE causes a negligible area overhead for the system and its overhead is significantly smaller compared to other functional submodules such as ALU, Muldiv. Moreover, the ChaCha ISE does not affect to the overall circuit depth of the system.
+Again, we use the Yosys tool to obtain post-synthesis circuit area of the integrated system including the Rocket core and the ChaCha ISE submodule. \REFTAB{tab:res:hardcost1} reports the area overheads of the Chacha ISE submodule in the system in comparison to the Rocket core and its submodules, e.g. Multiplier/divisor (Muldiv), ALU. The implementation of $V_4$ is chosen for the ChaCha ISE submodule to report in the table because it gains the best trade-off between area overhead (see \REFTAB{tab:res:hardcost1}) and software performance (see \REFTAB{tab:res:sw:perf1}). As can be seen, the ChaCha ISE causes a negligible area overhead for the system and its overhead is considerable smaller compared to other functional submodules such as ALU, Muldiv. Moreover, the ChaCha ISE does not affect to the overall circuit depth of the system.
 
 
 

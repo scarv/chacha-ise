@@ -1,10 +1,103 @@
 %!TEX root=../paper.tex
-Brief introduction to Chacha20
-\subsection{ChaCha's block function}
-Describe what is block function and how it is computed
+The ChaCha20 stream cipher is a 256-bit stream cipher, designed by D. J. Bernstein in 2008~\cite{Ber:08}.
+ChaCha20 based on the Salsa20 stream cipher has naturally a high-throughput performance on software platforms.
+Compared to Salsa, ChaCha has better diffusion per round and conjecturally increasing resistance to cryptanalysis. 
 
-\subsection{ChaCha's round function}
-Describe what is round function and how it is computed
+\subsection{Encryption and Decryption}
+The ChaCha encryption and decryption can have the same process in which input data stream is encrypted or decrypted by chopping the input into 64-byte blocks and XOR-ing them with the 64-byte output blocks of the ChaCha block function. The block function processes on the ChaCha state matrix of $4\times4$ word (32-bit) elements to generate the 64-byte output block.
+The ChaCha state matrix is initiated by a 4-word constant, a 8-word secret key, 4 words of counter and nonce. 
+Note that the original ChaCha20 uses 2-word nonce and a 2-word counter to allowing a practically unlimited amount of data to be encrypted while the IETF variant~\cite{} increases the nonce size to 3 words, but reduces the counter size down to one word.
+That limits the amount of encrypted data only up to 256 GB, but helps the encryption more safely with a longer (key, nonce) pair. 
+This paper adopts the IETF variant of which the initial state matrix is shown in~\REFFIG{fig:bg:ChaChaMatix}.
+The ChaCha process for encryption and decryption can be described as in Algorithm~\ref{alg::ChaCha::process}.
 
-\subsection{ChaCha's quarter round function}
-Describe what is quarter round function and how it is computed
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.47]{figures/ChaChaState.png}
+	\caption{ChaCha Initiate State Matrix}
+	\label{fig:bg:ChaChaMatix}
+\end{figure}
+
+\begin{algorithm}
+	\KwData  { 256-bit $Key$, 96-bit $Nonce$, L-bit $P$ 
+	}
+	\KwResult{ L-bit $C$
+	}
+	\BlankLine
+	\KwFn{$\ALG{ChaCha20Process}( Key, Nonce, P )$}{
+		/*Init State Matrix*/ \;
+		$S[0] \ASN \VERB{0x61707865}, S[1] \ASN \VERB{0x3320646e}$ \;
+		$S[2] \ASN \VERB{0x79622d32}, S[3] \ASN \VERB{0x6b206574}$ \;
+		$S[4..11] \ASN Key, S[13..15] \ASN Nonce$ \;
+		\For{$i = 0$ {\bf upto} $\lceil\frac{L}{512}\rceil - 1$} {
+		/*Update Counter*/ \;						
+		$S[12] \ASN i$ \;
+		/*perform Block function*/ \;
+		$K_i \ASN \ALG {ChaCha20Block}( S )$ \;
+		/*perform encryption/decryption*/ \;
+		$C_i \ASN K_i \XOR P_i$
+		}
+		$\KwRet{~C}$ \;
+	}
+	\caption{ChaCha20 Stream Cipher Process}
+	\label{alg::ChaCha::process}
+\end{algorithm}
+
+\subsection{Block function}
+For the aspect of impelementations, the ChaCha20 block function firstly executes 10 double rounds which alternately perform odd rounds and even rounds on the input state matrix. Then the processed state matrix is added to the input state matrix to result the output state matrix. The operation of the block function is described in Algorithm~\ref{alg::ChaCha::block}.
+
+\begin{algorithm}
+	\KwData  { an input state matrix $S$ as an array of 16 32-bit state elements
+	}
+	\KwResult{ an output state matrix $K$ as an array of 16 32-bit state elements
+	}
+	\BlankLine
+	\KwFn{$\ALG{ChaCha20Block}( S )$}{
+		/*copy the original state*/ \;
+		$X \ASN S$ \;
+		\For{$i = 1$ {\bf upto} $10$} {
+		/*Odd Round*/ \;
+		$\ALG{ChaCha20QuarterRound}( X[0],~X[4],~X[8],~X[12] )$ \; 
+		$\ALG{ChaCha20QuarterRound}( X[1],~X[5],~X[9],~X[13] )$ \; 
+		$\ALG{ChaCha20QuarterRound}( X[2],~X[6],~X[10],X[14] )$ \; 
+		$\ALG{ChaCha20QuarterRound}( X[3],~X[7],~X[11],X[15] )$ \;  
+		/*Even round*/ \;
+		$\ALG{ChaCha20QuarterRound}( X[0],~X[5],~X[10],X[15] )$ \; 
+		$\ALG{ChaCha20QuarterRound}( X[1],~X[6],~X[11],X[12] )$ \; 
+		$\ALG{ChaCha20QuarterRound}( X[2],~X[7],~X[8]~,X[13] )$ \; 
+		$\ALG{ChaCha20QuarterRound}( X[3],~X[4],~X[9]~,X[14] )$ \;  
+		}
+		$K \ASN X + S$ \;
+		$\KwRet{~K}$ \;
+	}
+	\caption{ChaCha20 Block function}
+	\label{alg::ChaCha::block}
+\end{algorithm}
+
+\paragraph{Round function} Both of the odd and even rounds have 4 quarter rounds.
+In the odd (column) round, the quarter rounds operates on four elements of the state matrix's columns.
+While the quarter rounds of the even (diagonal) round operate on the diagonals of the state matrix.
+For some implementations, one can view that a diagonal round can be equivalent to a column round, and vice versa, if the state matrix is rearranged (rotating the matrix's column 1, 2 and 3) before the rounds. 
+
+\paragraph{Quarter Round function} A quarter round updates four state words of the state matrix as shown in~Algorithm~\ref{alg::ChaCha::quarterround}. 
+The quarter round operations requires 4 adds, 4 xors and 4 rotations operating on the state words. 
+Each word is updated twice and affected by all four input words.
+
+\begin{algorithm}
+\KwData  { $A$, $B$, $C$, $D$ (32-bit state emelents).
+}
+\KwResult{ $A$, $B$, $C$, $D$ (Updated 32-bit state emelents).
+}
+\BlankLine
+\KwFn{$\ALG{QuarterRound}( A, B, C, D )$}{
+    /*Top half*/ \;
+	$A \ASN A + B,~D \ASN D \XOR A,~D \ASN D \LRT 16$ \;
+	$C \ASN C + D,~B \ASN B \XOR C,~B \ASN B \LRT 12$ \;
+    /*Bottom half*/ \;
+	$A \ASN A + B,~D \ASN D \XOR A,~D \ASN D \LRT  8$ \;
+	$C \ASN C + D,~B \ASN B \XOR C,~B \ASN B \LRT  7$ \;
+  $\KwRet{\TUPLE{ R0, R1 }}$ \;
+}
+\caption{ChaCha Quarter Round}
+\label{alg::ChaCha::quarterround}
+\end{algorithm}
