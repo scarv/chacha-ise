@@ -15,7 +15,8 @@
 \maketitle
 
 \begin{abstract}
-This paper proposes a lightweight Instruction Set Extension (ISE) to accelerate the ChaCha20 stream cipher on 64-bit RISC-V architectures. The proposed ISE is designed to accelerate the computation of ChaCha20's block function and align with the wider RISC-V design principles. We implement and evaluate 4 different proposed ISEs. The result shows that the best tradoff variant in the proposed ISEs is 2.2x faster than the baseline implementation using basic RISCV-ISA and its implementation costs N equivalent NAND2 in hardware.
+The ChaCha20 is a high-throughput stream cipher designed with the aim of ensuring high-security margins while achieving high performance on software platforms. RISC-V, an emerging, free, and open Instruction Set Architecture (ISA) is being developed with many instruction set extensions (ISE). ISEs are a native concept in RISC-V to support a relatively small RISC-V ISA to suit different use-cases including cryptographic acceleration via either standard or custom ISEs. This paper proposes a lightweight Instruction Set Extension (ISE) to support the ChaCha20 on 64-bit RISC-V architectures targeting embedded, IoT class devices. The proposed ISE is designed to accelerate the computation of ChaCha20's block function and align with the wider RISC-V design principles. We show that our proposed ISEs help to improve the efficiency of ChaCha block function significantly. The ISE-assisted implementation of ChaCha20 encryption has a considerable reduction in instruction counts which reduce to 0.18\% and 0.29\% of that of the OpenSSL baseline and ISA-base optimised implementation, respectively. For encrypting short messages, the ISE-assisted implementation gains a
+comparative performance compared to the implementations using very high area overhead vector extensions.
 \end{abstract}
 
 % =============================================================================

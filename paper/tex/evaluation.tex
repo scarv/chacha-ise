@@ -2,13 +2,13 @@
 
 \subsection{Single block function performance}
 \label{sec:eval:blk}
-We firstly evaluate the accelerated implementations of ChaCha block function in software in compared with a vanilla function used in OpenSSL~\cite{OpenSSL} as a Baseline. The four accelerated functions, denoted as $V_1$, $V_2$, $V_3$ and $V_4$, use the corresponding ChaCha ISE variant sets to accelerate their round operations. 
+We evaluate the accelerated implementations of the ChaCha block function in software compared with a vanilla implementation used in OpenSSL~\cite{OpenSSL} as a Baseline. The four accelerated functions denoted as $V_1$, $V_2$, $V_3$, and $V_4$ use the corresponding ChaCha ISE variant sets to accelerate their round operations. 
 Because ChaCha ISEs are encoded as R-type instructions, the accelerated functions easily use assembly RISC-V directives \VERB[asm]{.insn} to invoke ChaCha ISEs without the requirement of building modified toolchains.   
-For a comparison's sake, all accelerated and baseline functions have the same function prototype and looping scheme (i.e. 10 rounds each of which includes an odd and an even rounds). 
+For comparison's sake, all accelerated and baseline functions have the same function prototype and looping scheme (i.e. 10 double rounds each of which includes an odd and an even rounds). 
 They are complied with the RISC-V gcc version 9.2.0 with a performance optimisation flag (`-02') and targeting for the \VERB{rv64imc} architecture (`-march=rv64imc -mabi=lp64'). 
-We use an open source Verilator tool~\cite{Verilator} compiling the Verilog files of the integrated system (mentioned in \REFSEC{sec:ise:hw:sys}) including a Rocket core and ChaCha ISEs to generate a cycle-accurate behavioural emulator for the system. The generated emulator is used to evaluate the performance of the software of the ChaCha block functions.  
+We use an open-source Verilator tool~\cite{Verilator} compiling the Verilog files of the integrated system (mentioned in \REFSEC{sec:ise:hw:sys}) including a Rocket core and ChaCha ISEs to generate a cycle-accurate behavioural emulator for the system. The generated emulator is used to evaluate the performance of the software of the ChaCha block functions.  
 
-\begin{table}
+\begin{table}[b]
 \caption{Comparison of chacha single block function performance}
 \label{tab:res:sw:perf1}
 \begin{tabular}{crrl}
@@ -26,25 +26,25 @@ Baseline     & 2214 ($1.00\times$)  & 2803 ($1.00\times$)    &  852 ($1.00\times
 \end{tabular}
 \end{table}
 
-The evaluation is shown in \REFTAB{tab:res:sw:perf1} in terms of instruction count, cycle count, and instruction footprint (in bytes) of the ChaCha block function. As can be seen, the accelerated functions have significantly reduced instruction counts to about 0.2\% of the baseline instruction count. Even though the cycle counts are also reduced in the case of the accelerated functions, but the reduction in cycle count metrics is not as good as in instruction count metrics. This could be due to inefficient data forwarding operations supporting ChaCha ISEs via the RoCC interface in the Rocket core micro-architecture. It should be noted that the operation of every ChaCha ISEs is computer in one clock cycle. One can view that is a trade-off between ineffective performance and invasiveness avoiding micro-architectural modifications.
+The evaluation is shown in \REFTAB{tab:res:sw:perf1} in terms of instruction count, cycle count, and instruction footprint (in bytes) of the ChaCha block function. As can be seen, the accelerated functions have significantly reduced instruction counts to about 0.2\% of the baseline instruction count. Even though the cycle counts are also reduced in the case of the accelerated functions, but the reduction in cycle count metrics is not as good as in instruction count metrics. This could be due to inefficient data forwarding operations supporting ChaCha ISEs via the RoCC interface in the Rocket core micro-architecture. It should be noted that the operation of every ChaCha ISEs is computed in one clock cycle. One can view that as a trade-off between ineffective performance and invasiveness avoiding micro-architectural modifications.
 
-Comparing the ISE variants, $V_4$ obtains a good trade-off solution which provides the lowest instruction footprint and the second lowest instruction count (0.32\% and 0.21\%, respectively, compared to the baseline) and consumes a small area overhead (see \REFTAB{tab:res:hardcost1}).
+Comparing the ISE variants, $V_4$ obtains a good trade-off solution which provides the lowest instruction footprint and the second-lowest instruction count (0.32\% and 0.21\%, respectively, compared to the baseline) and consumes a small area overhead (see \REFTAB{tab:res:hardcost1}).
 
 \subsection{Encryption/Decryption performance}
 We then implement a completed ChaCha encryption/decryption function in which the accelerated block functions implemented in the above subsection is used to generate keystream blocks. The keystream blocks xors with input data-stream blocks to encrypt/decrypt the data streams. We invest the $V_4$ set of the proposed ISE to accelerate the encryption function. 
 
 The performance of the implementation using the proposed ISE is evaluated in comparison to the existing implementations including scalar and vectorisation implementations.  
 For scalar (no vectorisation) implementations, only the standard 64-bit ISA (scalar) instructions of RISC-V are used. We choose the ChaCha implementation of OpenSSL as the Baseline. In addition, we implement an optimised variant denoted \VERB{Opt.} which is written in assembly language to optimise the performance with our best effort. 
-For the vectorisation implementations, we make uses of vectorised instructions to accelerate ChaCha encryption/decryption operations. 
-We adopt two approaches, one, denoted \VERB{Vector1}, implements an cell-oriented approach used in OpenSSL which processes multiple blocks in parallel.
+For the vectorisation implementations, we make use of vectorised instructions to accelerate ChaCha encryption/decryption operations. 
+We adopt two approaches, one, denoted \VERB{Vector1}, implements a cell-oriented approach used in OpenSSL which processes multiple blocks in parallel.
 The other, denoted \VERB{Vector2}, follows a row-oriented approach presented in~\cite{GolGue:14}. This approach packs state elements in ChaCha blocks' rows into the same vectorised registers.
 In addition, we invest two versions of vector lengths, namely 128 bits and 256 bits, for the vectorisation implementations. 
 Different from the original implementations, the vectorisation implementations are realised using the vector instruction extension set~\cite{riscv:ext:vector:draft} for RISC-V processors instead of using AVX/AVX2 architecture on \VERB{x86_64} processors.
 
 The implementations are compiled as the same set up in \REFSEC{sec:eval:blk} but targeting to the \VERB{rv64gcv} architecture for the vector instruction extension. 
-Currently, the RISC-V vector instruction extension have not been frozen. We adopts the latest published version v0.9. Since there is not yet open source implementation supporting the RISC-V vector instruction extension is available, we use \VERB{Spike}~\cite{Spike}, an instruction set simulator, to evaluate the instruction count of the implementations.
+Currently, the RISC-V vector instruction extension has not been frozen. We adopt the latest published version v0.9. Since there is not yet an open-source implementation supporting the RISC-V vector instruction extension is available, we use \VERB{Spike}~\cite{Spike}, an instruction set simulator, to evaluate the instruction count of the implementations.
 
-\begin{table}
+\begin{table}[b]
 \caption{Comparison of encryption/decryption performance in instruction count for different message sizes between the Baseline, ISA-based optimised implementation, ISE-assisted implementation and different vectorization implementations}
 \label{tab:res:sw:perf2}
 \begin{tabular}{rrrrrrrr}
@@ -64,14 +64,14 @@ Message size & Baseline  &  ISA  &  ISE   & \multicolumn{2}{c}{128 bit Vector} &
 \REFTAB{tab:res:sw:perf2} reports the instruction count executing encryption/decryption operations for different message sizes. 
 As expected, all accelerated implementations including the cases of scalar ISE, vectorised ISE gain significant reductions in instruction count compared to the baseline. 
 We observe that the lack of supporting rotation in the current version of the vector instruction extension introduces the disadvantages of the implementations based on this extension. 
-However, for the large messages, the vector based implementations shows their advantage over the scalar ISE based implementation. 
+However, for the large messages, the vector-based implementations show their advantage over the scalar ISE based implementation. 
 The \VERB{Vector1} implementations provide the lowest instruction count executions when the message size is greater than 512 bytes. 
-The \VERB{Vector2} implementations outperforms the \VERB{Vector1} implementations for shorter messages.
-Interestingly, the proposed scalar ISE-assisted implementation, $V_4$, gains the best performance in the case of single block messages.
+The \VERB{Vector2} implementations outperform the \VERB{Vector1} implementations for shorter messages.
+Interestingly, the proposed scalar ISE-assisted implementation, $V_4$, gain the best performance in the case of single block messages.
 For the message size smaller than 512 bytes, the $V_4$ implementation have a better performance compared to the \VERB{Vector1} implementation. 
-And $V_4$ outperforms the 128-bit Vector implementation of \VERB{Vector2} for all message sizes. But when the vector length increases to 256-bit, \VERB{Vector2} shows its advantage over $V_4$. It is worth noting that the vector instruction extension which is only presented in high(er)-end computational platforms causes a very large overhead in hardware while the proposed ISE approach requires negligible increased hardware cost to gain a good performance for short messages compared to the vectorisation implementations. That makes our ChaCha ISE be suitable for low(er)-end resource-constrained processors.
+And $V_4$ outperforms the 128-bit Vector implementation of \VERB{Vector2} for all message sizes. But when the vector length increases to 256-bit, \VERB{Vector2} shows its advantage over $V_4$. It is worth noting that the vector instruction extension which is only presented in high(er)-end computational platforms cause a very large overhead in hardware while the proposed ISE approach requires negligible increased hardware cost to gain a good performance for short messages compared to the vectorisation implementations. That makes our ChaCha ISE be suitable for low(er)-end resource-constrained processors.
 
-For comparing the scalar implementation, the \VERB{Opt.} implementation gains a reduced instruction count to 0.63\% of the OpenSSL baseline instruction count.
+In comparing the scalar implementation, the \VERB{Opt.} implementation gains a reduced instruction count to 0.63\% of the OpenSSL baseline instruction count.
 It obtains an encrypting performance of $26.9$ instructions/byte (with 1024 byte message) that is almost similar to the result reported in~\cite{Sto:19} (i.e. $27.9$ cycles/byte with most instructions executed in a single cycle). 
 Notably, the $V_4$ implementation achieves further significant performance improvement compared to the \VERB{Opt.} implementation. 
 The instruction count of the $V_4$ implementation is reduced to about 0.29\% (resp. 0.18\%) of the \VERB{Opt.} (resp. the baseline) instruction count.
