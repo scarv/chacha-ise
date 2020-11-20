@@ -2,27 +2,27 @@
 % Misc / Tools
 %
 @MISC{Yosys,
-	author = {Claire Wolf},
-	title = {Yosys Open SYnthesis Suite},
-	howpublished = "\url{http://www.clifford.at/yosys/}"
+	author  = {Claire Wolf},
+	title   = {Yosys Open SYnthesis Suite},
+	note    = {\url{http://www.clifford.at/yosys/}}
 }
 
 @MISC{Verilator,
-	author = {Wilson Snyder},
-	title = {{Verilator - Translate and simulate System Verilog code using C++/SystemC}},
-	howpublished = "\url{https://www.veripool.org/wiki/verilator}"
+	author  = {Wilson Snyder},
+	title   = {{Verilator - Translate and simulate System Verilog code using C++/SystemC}},
+	note    = {\url{https://www.veripool.org/wiki/verilator}}
 }
 
 @MISC{Spike,
-	author = {The Regents of the University of California},
-	title = {{Spike RISC-V ISA Simulator}},
-	howpublished = "\url{https://github.com/riscv/riscv-isa-sim}"
+	author  = {The Regents of the University of California},
+	title   = {{Spike RISC-V ISA Simulator}},
+	note    = {\url{https://github.com/riscv/riscv-isa-sim}}
 }
 
 @MISC{OpenSSL,
-	author = {{OpenSSL}},
-	title = {{The Open Source toolkit for SSL/TLS}},
-	howpublished = "\url{http://www.openssl.org}"
+	author  = {{OpenSSL}},
+	title   = {{The Open Source toolkit for SSL/TLS}},
+	note    = {\url{http://www.openssl.org}}
 }
 
 %
@@ -30,21 +30,21 @@
 %
 
 @techreport{RV:ISA:I,
-  editor        = {A. Waterman and K. Asanovi\'{c}},
-  title         = {The {RISC-V} Instruction Set Manual},
-  number        = {Volume  I: User-Level ISA          (Version 20191213)},
-  year          = {2019},
-  note          = {\url{http://riscv.org/specifications}}
+  editor    = {A. Waterman and K. Asanovi\'{c}},
+  title     = {The {RISC-V} Instruction Set Manual},
+  number    = {Volume  I: User-Level ISA (Version 20191213)},
+  year      = {2019},
+  note      = {\url{http://riscv.org/specifications}}
 }
 
 @misc{riscv:bitmanip:draft,
-  title        = {{RISC-V} Bit manipulation extension draft proposal},
-  url          = {https://github.com/riscv/riscv-bitmanip/blob/master/bitmanip-draft.pdf}
+  title     = {{RISC-V} Bit manipulation extension draft proposal},
+  note      = {\url{https://github.com/riscv/riscv-bitmanip/blob/master/bitmanip-draft.pdf}}
 }
 
 @misc{riscv:ext:vector:draft,
-  title        = {{RISC-V "V" Vector Extension draft proposal}},
-  url          = {https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc}
+  title     = {{RISC-V "V" Vector Extension draft proposal}},
+  note      = {\url{https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc}}
 }
 
 @misc{riscv:ext:vector:repo,
@@ -74,20 +74,45 @@
   note         = {\url{http://www2.eecs.berkeley.edu/Pubs/TechRpts/2016/EECS-2016-17.html}}
 }
 
-@misc{Ber:08,
-  author    = {D. J. Bernstein},
-  title     = {{ChaCha, a variant of Salsa20}},
-  year      = {2008},
-  note      = {\url{http://cr.yp.to/papers.html#chacha}}
+@techreport{riscv:14,
+	author       = {K. Asanovi\'{c} and D.A. Patterson},
+	title        = {Instruction Sets Should Be Free: The Case For {RISC-V}},
+	number       = {UCB/EECS-2014-146},
+	year         = {2014},
+	note         = {\url{http://www.eecs.berkeley.edu/Pubs/TechRpts/2014/EECS-2014-146.html}}
 }
 
-@misc{NirLan:18,
-  author    = {Y. Nir and A. Langley},
-  title     = {{ChaCha20 and Poly1305 for IETF Protocols}},
-  booktitle = {{IETF RFC8439}}
-  year      = {June 2018},
-  note      = {\url{https://tools.ietf.org/html/rfc8439}}
+@misc{Ber:08,
+  author       = {D. J. Bernstein},
+  title        = {{ChaCha, a variant of Salsa20}},
+  year         = {2008},
+  note         = {\url{http://cr.yp.to/papers.html#chacha}}
 }
+
+@misc{RFC:18,
+  author       = {Y. Nir and A. Langley},
+  title        = {{ChaCha20 and Poly1305 for IETF Protocols}},
+  howpublished = {Internet Engineering Task Force (IETF) Request for Comments (RFC) 8439},
+  year         = {June 2018},
+  note         = {\url{https://tools.ietf.org/html/rfc8439}}
+}
+
+@misc{RFC:16,
+  author       = {A. Langley and W. Chang and N. Mavrogiannopoulos and J. Strombergson and S. Josefsson},
+  title        = {{ChaCha20-Poly1305 Cipher Suites for Transport Layer Security (TLS)}},
+  howpublished = {Internet Engineering Task Force (IETF) Request for Comments (RFC) 7905},
+  year         = {June 2016},
+  note         = {\url{https://www.rfc-editor.org/rfc/rfc7905}}
+}
+
+@misc{RFC:18:8446,
+  author       = { E. Rescorla},
+  title        = {{The Transport Layer Security (TLS) Protocol Version 1.3}},
+  howpublished = {Internet Engineering Task Force (IETF) Request for Comments (RFC) 8446},
+  year         = {August 2018},
+  note         = {\url{https://tools.ietf.org/html/rfc8446}}
+}
+
 %
 % Academic papers
 %
@@ -109,3 +134,73 @@
   year         = {2019}
 }
 
+@inproceedings{SSS:17,
+  author       = {F. {De Santis} and A. {Schauer} and G. {Sigl}},
+  booktitle    = {Design, Automation   Test in Europe Conference   Exhibition (DATE)}, 
+  title        = {{ChaCha20-Poly1305} authenticated encryption for high-speed embedded {IoT} applications}, 
+  year         = {2017},
+  pages        = {692--697}
+}
+
+@inproceedings{KLA:19,
+  author       = {K. Kiningham and P. Levis and M. Anderson and D. Boneh and M. Horowitz and M. Shih},
+  title        = {Falcon - A Flexible Architecture For Accelerating Cryptography},
+  booktitle    = {IEEE 16th International Conference on Mobile Ad Hoc and Sensor Systems (MASS)},
+  year         = {2019},
+  pages        = {136--144}
+}
+
+@article{GalBer:11,
+	author        = {C. Galuzzi and K. Bertels},
+	title         = {The Instruction-Set Extension Problem: A Survey},
+	journal       = {ACM Transactions on Reconfigurable Technology and Systems},
+	volume        = {4},
+	number        = {2},
+	pages         = {18:1--18:28},
+	year          = {2011}
+}
+
+@incollection{BarGioMar:09,
+	author        = {S. Bartolini and R. Giorgi and E. Martinelli},
+	title         = {Instruction Set Extensions for Cryptographic Applications},
+	chapter       = {9},
+	pages         = {191--233},
+	editor        = {{\c{C}.K. Ko\c{c}}},
+	booktitle     = {Cryptographic Engineering},
+	publisher     = {Springer},
+	year          = {2009}
+}
+
+@inproceedings{RegIen:16,
+	author        = {F. Regazzoni and P. Ienne},
+	title         = {Instruction Set Extensions for Secure Applications},
+	booktitle     = {Design, Automation, and Test in Europe (DATE)},
+	pages         = {1529--1534},
+	year          = {2016}
+}
+
+@article{RCB:20,
+	author={Rezvani, B. and Conroy, T. and Beckwith, L. and Bozzay, M. and Laffoon, T. and McFeeters, D. and Shi, Y. and Vu, M. and Diehl, W.},
+	title={Efficient Simultaneous Deployment of Multiple Lightweight Authenticated Ciphers},
+	year={2020},
+	journal={IACR Cryptology ePrint Archive 2020: 609}
+}
+
+@article{GMPP:20,
+	author        = {S. Gao and B. Marshall and D. Page and T. Pham},
+	title         = {{FENL}: an {ISE} to mitigate analogue micro-architectural leakage},
+	journal       = {IACR Transactions on Cryptographic Hardware and Embedded Systems (TCHES)},
+	volume        = {2020},
+	number        = {2},
+	pages         = {73--98},
+	year          = {2020}
+}
+
+@misc{MNPSW:21,
+	author        = {B. Marshall and G.R. Newell and D. Page M.-J.O. Saarinen and C. Wolf},
+	title         = {The design of scalar {AES} Instruction Set Extensions for {RISC-V}},
+	volume        = {2021},
+	number        = {1},
+	journal       = {IACR Transactions on Cryptographic Hardware and Embedded Systems (TCHES)},
+	note          = {\url{https://eprint.iacr.org/2020/930}}
+}
