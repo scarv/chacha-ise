@@ -9,18 +9,18 @@ The latter prevents the acceleration using the scalar-register-based ISEs on 32-
 Certainly, vector instructions are possible approaches to accelerating ChaCha. 
 But in this paper, we focused on the scalar-register-based ISE approaches on 64-bit RISC-V architecture instead. 
 This provides a lower area overhead solution compared to vectorisation alternatives. 
-The 64-bit architecture allows each instruction to pack more ChaCha state elements (e.g. 2-source-operands instructions can pack 4 ChaCha state elements). 
+The 64-bit architecture allows each instruction to pack more ChaCha state elements (e.g. 2-source-operands instructions can pack 4 ChaCha state elements) compared to 32-bit architectures. 
 This enables the possibility of acceleration.
 
 Our ISE designs obey the wider RISC-V design principles. 
 This means the ISE designs should support simple building-block operations, and their instruction encodings must be at most 2 source registers and 1 destination register. 
-By following that the proposed ISEs can be straightforwardly integrated into different existing RISC-V implementations.
-To ensure low area and latency overhead, the proposed ISEs follow further requirements: 
+By following that the proposed ISEs can be straightforwardly integrated into different existing RISC-V implementations with negligible modification.
+To ensure low area and latency overheads, the proposed ISEs follow further requirements: 
 a) The operation of ISE can be implemented to execute in one clock cycle in its hardware module. 
 b) The ISE must store operands and results in the RISC-V general-purpose scalar register file. 
 c) The ISE must not introduce special-purpose architectural states, nor rely on special-purpose micro-architectural state (e.g., registers, caches, or scratch-pad memory).
-Overall, The proposed ISEs intentionally target performing ChaCha stream cipher on low(er)-end, resource-constrained (e.g., embedded) devices. The focus can be viewed as reasonable, because existing work on adding cryptographic support to the standard vector extension \cite{riscv:ext:vector:draft} already caters for high(er)-end alternatives. 
-We arrive at four ISE variants, the design of which is split into intuitive descriptions in the following subsections 
+Overall, the proposed ISEs intentionally target performing ChaCha stream cipher on low(er)-end, resource-constrained (e.g., embedded) devices. The focus can be viewed as reasonable, because existing work on adding cryptographic support to the standard vector extension \cite{riscv:ext:vector:draft} already caters for high(er)-end alternatives. 
+We arrive at four ISE variants, the design of which is split into intuitive descriptions in the following subsections. 
 
 \subsubsection{Variant 1 ($V_1$)}
 $V_1$ is based on a performance-oriented approach which aims at executing the ChaCha quarter round with a minimal number of ISE.
@@ -69,7 +69,7 @@ This ISE variant can be used to implement the quarter-round function as in Algor
 
 
 \subsubsection{Variant 2 ($V_2$)}
-As focusing on performance, the implementation of $V_1$ can lead to an un-optimal area overhead of, in the worst case, four 32-bit \VERB{Xors} and three 32-bit \VERB{Additions}. $V_2$ present a trade-off approach to reduce area overhead by introducing 3 ISEs. 
+As focusing on performance, the implementation of $V_1$ can lead to an un-optimal area overhead of four 32-bit \VERB{Xors} and three 32-bit \VERB{Additions}. $V_2$ present a trade-off approach to reduce area overhead by introducing 3 ISEs. 
 One ISE computes two intermediate values in the ChaCha quarter round function from the input state elements.
 The other two ISEs calculates the output elements from the intermediate values and the input elements.
 These ISEs are able to share their computational hardware (e.g. adder). By doing so, the $V_2$ reduces the required number of 32-bit additions from three to two compared to $V_1$. The ISEs of $V_2$ are described as follows:

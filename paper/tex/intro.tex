@@ -2,7 +2,7 @@
 \paragraph{ChaCha for secure communication.}
 Secure communication on the internet typically requires different cryptographic primitives and a common protocol applying these primitives to provide a protected channel between endpoints.
 The Transport Layer Security (TLS) specifies the leading and standard protocols for secure communication.
-The TLS protocol defines various public key algorithms for establishing symmetric session keys, and different symmetric and MAC algorithms for the subsequent encrypted and authenticated communication.
+The TLS protocol defines public key algorithms for establishing symmetric session keys, and different symmetric and MAC algorithms for the subsequent encrypted and authenticated communication.
 The efficiency of these primitives is essential to achieve good performance for secure communication.
 ChaCha20 is a high-throughput stream cipher which is a refinement of the Salsa20 stream cipher. It targets software platforms to aim at improving its security bounds without losing performance. ChaCha20 stream cipher and Poly1305 authenticator~\cite{RFC:16} are specified as one of the cipher suites by the current TLS 1.3~\cite[Section 9.1]{RFC:18:8446}.
 ChaCha20 is officially supported by world-leading companies like Google Inc. and global projects like OpenSSH.
@@ -10,7 +10,7 @@ Moreover, there are extensive efforts in the literature to intensively optimise 
 
 \paragraph{RISC-V.}
 RISC-V is an open and free ISA specification with academic origins~\cite{riscv:14} adopting strongly RISC-oriented design principles. 
-The ISA can be implemented, modified, or extended by anyone with neither licence nor royalty requirements.
+The ISA can be implemented, modified, or extended with neither licence nor royalty requirements.
 RISC-V has been designed to be extended in a highly modular manner 
 in which its extremely simple ISA, consisting of about 50 general-purpose instructions, can (optionally) be complemented by sets of
 standard or non-standard (i.e., custom) extensions to support special-purpose functionality.

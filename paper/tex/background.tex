@@ -19,7 +19,7 @@ The ChaCha process for encryption and decryption can be described as in Algorith
 \end{figure}
 
 \subsection{Block function}
-For the aspect of implementation, the ChaCha20 block function firstly executes 10 double rounds which alternately perform odd rounds and even rounds on the input state matrix. Then the processed state matrix is added to the input state matrix to result in the output state matrix. The operation of the block function is described in Algorithm~\ref{alg::ChaCha::block}.
+For the aspect of implementation, the ChaCha20 block function firstly executes 10 double rounds which alternately perform odd rounds and even rounds on the input state matrix. The processed state matrix is, then, added to the input state matrix to result in the output state matrix. The operation of the block function is described in Algorithm~\ref{alg::ChaCha::block}.
 
 \paragraph{Round function:} Both of the odd and even rounds have 4 quarter rounds.
 In the odd (column) round, the quarter rounds operate on four elements of the state matrix's columns.
