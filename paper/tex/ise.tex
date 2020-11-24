@@ -23,7 +23,7 @@ Overall, the proposed ISEs intentionally target performing ChaCha stream cipher 
 We arrive at four ISE variants, the design of which is split into intuitive descriptions in the following subsections. 
 
 \subsubsection{Variant 1 ($V_1$)}
-$V_1$ is based on a performance-oriented approach which aims at executing the ChaCha quarter round with a minimal number of ISE.
+$V_1$ is based on a performance-oriented approach which aims at executing the ChaCha quarter round with a minimal number of instructions.
 Due to the 1-destination-register constraint, the ChaCha quarter round can be executed at least two ISEs to compute 4 state elements of the quarter round.
 Therefore, we propose two ISEs as following:
 
@@ -69,7 +69,7 @@ This ISE variant can be used to implement the quarter-round function as in Algor
 
 
 \subsubsection{Variant 2 ($V_2$)}
-As focusing on performance, the implementation of $V_1$ can lead to an un-optimal area overhead of four 32-bit \VERB{Xors} and three 32-bit \VERB{Additions}. $V_2$ present a trade-off approach to reduce area overhead by introducing 3 ISEs. 
+As focusing on performance, the implementation of $V_1$ can lead to an un-optimal area overhead of four 32-bit \VERB{Xors} and three 32-bit \VERB{Additions}. $V_2$ present a trade-off approach to reduce area overhead by using 3 instructions. 
 One ISE computes two intermediate values in the ChaCha quarter round function from the input state elements.
 The other two ISEs calculates the output elements from the intermediate values and the input elements.
 These ISEs are able to share their computational hardware (e.g. adder). By doing so, the $V_2$ reduces the required number of 32-bit additions from three to two compared to $V_1$. The ISEs of $V_2$ are described as follows:
