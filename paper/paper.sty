@@ -5,7 +5,7 @@
 \usepackage{caption}
 \usepackage[inline]{enumitem}
 \usepackage{etoolbox}
-\usepackage[hidelinks]{hyperref}
+%\usepackage[hidelinks]{hyperref}
 \usepackage{import}
 \usepackage{listings}
 \usepackage{siunitx}
@@ -21,8 +21,8 @@
 \usepackage{xcolor}
 
 % set flags to conditionally control content in the paper (in addition to document class)
-\newbool{submission} \setbool{submission}{false}
-\newbool{anonymous}  \setbool{anonymous} {false}
+\newbool{ACMsubmission} \setbool{ACMsubmission}{true}
+\newbool{anonymous}     \setbool{anonymous} {false}
 
 % hack-ish control of space etc.
 \captionsetup[subfigure]{justification=centering}
@@ -84,7 +84,12 @@
 
 \newcommandx{\CORE}{\ifbool{anonymous}{Anonymous}{SCARV}\xspace}
 
+\makeatletter
+\newcommand{\removelatexerror}{\let\@latex@error\@gobble}
+\makeatother
+
 \newcommandx{\INST}[2]{
+\removelatexerror
 \item \VERB[ASM]{#1}
 
       \begin{algorithm}[H]

@@ -9,11 +9,11 @@ They are complied with the RISC-V gcc version 9.2.0 with a performance optimisat
 We use an open-source Verilator tool~\cite{Verilator} compiling the Verilog files of the integrated system (mentioned in \REFSEC{sec:ise:hw:sys}) including a Rocket core and ChaCha ISEs to generate a cycle-accurate behavioural emulator for the system. The generated emulator is used to evaluate the performance of the software of the ChaCha block functions.  
 
 \begin{table}[b]
-\caption{Comparison of chacha single block function performance}
+\caption{Comparison of chacha block function performance}
 \label{tab:res:sw:perf1}
 \begin{tabular}{crrl}
 \toprule            
-Implementations        & Instruction count   & Cycle count & Instruction footprint\\
+Implementations        & Inst. count   & Cycle count & Inst. footprint\\
 
 \midrule
 Baseline     & 2214 ($1.00\times$)  & 2803 ($1.00\times$)    &  852 ($1.00\times$)  \\
@@ -44,7 +44,7 @@ Different from the original implementations, the vectorisation implementations a
 The implementations are compiled as the same set up in \REFSEC{sec:eval:blk} but targeting to the \VERB{rv64gcv} architecture for the vector instruction extension. 
 Currently, the RISC-V vector instruction extension has not been frozen. We adopt the latest published version v0.9. Since there is not yet an open-source implementation supporting the RISC-V vector instruction extension is available, we use \VERB{Spike}~\cite{Spike}, an instruction set simulator, to evaluate the instruction count of the implementations.
 
-\begin{table}[b]
+\begin{table*}
 \caption{Comparison of encryption/decryption performance in instruction count for different message sizes between the Baseline, ISA-based optimised implementation, ISE-assisted implementation and different vectorization implementations}
 \label{tab:res:sw:perf2}
 \begin{tabular}{rrrrrrrr}
@@ -59,7 +59,7 @@ Message size & Baseline  &  ISA  &  ISE   & \multicolumn{2}{c}{128 bit Vector} &
 1024 bytes   &   43775   & 27538 & 7716   &    7242        &      9232         &    3748        &      4647         \\
 \bottomrule 
 \end{tabular}
-\end{table}
+\end{table*}
 
 \REFTAB{tab:res:sw:perf2} reports the instruction count executing encryption/decryption operations for different message sizes. 
 As expected, all accelerated implementations including the cases of scalar ISE, vectorised ISE gain significant reductions in instruction count compared to the baseline. 

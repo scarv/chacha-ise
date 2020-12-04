@@ -35,8 +35,7 @@ void chacha20_block(uint32_t out[16], uint32_t const in[16])
     uint64_t a6 = pin[6];        // x[13], x[12]  
     uint64_t a7 = pin[7];        // x[15], x[14]
 
-    for(int i = 0; i < CHACHA20_ROUNDS; i += 2)
-    {                  
+    for(int i = 0; i < CHACHA20_ROUNDS; i += 2) {                  
         HALF_ROUND(a0,a2,a4,a6); // column 1 & 0 
         HALF_ROUND(a1,a3,a5,a7); // column 3 & 2
         rv64_packlh(t2, a2, a3); // x[ 6], x[ 5] 
