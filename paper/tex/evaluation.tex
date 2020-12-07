@@ -5,7 +5,7 @@
 We evaluate the accelerated implementations of the ChaCha block function in software compared with a vanilla implementation used in OpenSSL~\cite{OpenSSL} as a Baseline. The four accelerated functions denoted as $V_1$, $V_2$, $V_3$, and $V_4$ use the corresponding ChaCha ISE variant sets to accelerate their round operations. 
 Because ChaCha ISEs are encoded as R-type instructions, the accelerated functions easily use assembly RISC-V directives \VERB[asm]{.insn} to invoke ChaCha ISEs without the requirement of building modified toolchains.   
 For comparison's sake, all accelerated and baseline functions have the same function prototype and looping scheme (i.e. 10 double rounds each of which includes an odd and an even rounds). 
-They are complied with the RISC-V gcc version 9.2.0 with a performance optimisation flag (`-02') and targeting for the \VERB{rv64imc} architecture (`-march=rv64imc -mabi=lp64'). 
+They are complied with the RISC-V gcc version 9.2.0 with a performance optimisation flag (`-02') and targeting for the \VERB{rv64imac} architecture (`-march=rv64imac -mabi=lp64'). 
 We use an open-source Verilator tool~\cite{Verilator} compiling the Verilog files of the integrated system (mentioned in \REFSEC{sec:ise:hw:sys}) including a Rocket core and ChaCha ISEs to generate a cycle-accurate behavioural emulator for the system. The generated emulator is used to evaluate the performance of the software of the ChaCha block functions.  
 
 \begin{table}[b]
@@ -34,29 +34,30 @@ Comparing the ISE variants, $V_4$ obtains a good trade-off solution which provid
 We then implement a completed ChaCha encryption/decryption function in which the accelerated block functions implemented in the above subsection is used to generate keystream blocks. The keystream blocks xors with input data-stream blocks to encrypt/decrypt the data streams. We invest the $V_4$ set of the proposed ISE to accelerate the encryption function. 
 
 The performance of the implementation using the proposed ISE is evaluated in comparison to the existing implementations including scalar and vectorisation implementations.  
-For scalar (no vectorisation) implementations, only the standard 64-bit ISA (scalar) instructions of RISC-V are used. We choose the ChaCha implementation of OpenSSL as the Baseline. In addition, we implement an optimised variant denoted \VERB{Opt.} which is written in assembly language to optimise the performance with our best effort. 
+For scalar (no vectorisation) implementations, only the standard 64-bit ISA (scalar) instructions of RISC-V are used. We choose the ChaCha implementation of OpenSSL as the Baseline. In addition, we implement an optimised variant denoted \VERB{Opt.1} which is written in assembly language to optimise the performance with our best effort. Moreover, we invest an optimised implementation denoted \VERB{Opt.2} to use the Bitmanip extension supporting rotation instructions.
+
 For the vectorisation implementations, we make use of vectorised instructions to accelerate ChaCha encryption/decryption operations. 
 We adopt two approaches, one, denoted \VERB{Vector1}, implements a cell-oriented approach used in OpenSSL which processes multiple blocks in parallel.
 The other, denoted \VERB{Vector2}, follows a row-oriented approach presented in~\cite{GolGue:14}. This approach packs state elements in ChaCha blocks' rows into the same vectorised registers.
 In addition, we invest two versions of vector lengths, namely 128 bits and 256 bits, for the vectorisation implementations. 
 Different from the original implementations, the vectorisation implementations are realised using the vector instruction extension set~\cite{riscv:ext:vector:draft} for RISC-V processors instead of using AVX/AVX2 architecture on \VERB{x86_64} processors.
 
-The implementations are compiled as the same set up in \REFSEC{sec:eval:blk} but targeting to the \VERB{rv64gcv} architecture for the vector instruction extension. 
-Currently, the RISC-V vector instruction extension has not been frozen. We adopt the latest published version v0.9. Since there is not yet an open-source implementation supporting the RISC-V vector instruction extension is available, we use \VERB{Spike}~\cite{Spike}, an instruction set simulator, to evaluate the instruction count of the implementations.
+The implementations are compiled as the same set up in \REFSEC{sec:eval:blk} but targeting to the \VERB{rv64imacb} and the \VERB{rv64gcv} architectures for the Bitmanip extension and the vector instruction extension, respectively. 
+Currently, the Bitmanip and the vector instruction extensions have not been frozen. We adopt the latest published versions v0.92 and v0.9 for the Bitmanip and the vector extensions, respectively. Since there is not yet an open-source implementation supporting the RISC-V vector instruction extension is available, we use \VERB{Spike}~\cite{Spike}, an instruction set simulator, to evaluate the instruction count of the implementations.
 
 \begin{table*}
 \caption{Comparison of encryption/decryption performance in instruction count for different message sizes between the Baseline, ISA-based optimised implementation, ISE-assisted implementation and different vectorization implementations}
 \label{tab:res:sw:perf2}
-\begin{tabular}{rrrrrrrr}
+\begin{tabular}{rrrrrrrrr}
 \toprule             
-Message size & Baseline  &  ISA  &  ISE   & \multicolumn{2}{c}{128 bit Vector} & \multicolumn{2}{c}{256 bit Vector} \\
-             & OpenSSL   &  Opt. & $V_4$  & \VERB{Vector1} & \VERB{Vector2}    & \VERB{Vector1} & \VERB{Vector2}    \\
+Message size & Baseline  &  RV64I & RV64IB  &  ISE   & \multicolumn{2}{c}{128 bit Vector} & \multicolumn{2}{c}{256 bit Vector} \\
+             & OpenSSL   &  Opt.1 &  Opt.2  & $V_4$  & \VERB{Vector1} & \VERB{Vector2}    & \VERB{Vector1} & \VERB{Vector2}    \\
 \midrule
-  64 bytes   &    2825   &  1768 &  523   &    2001        &       607         &    2001        &       615         \\
- 128 bytes   &    5555   &  3486 &  989   &    2001        &      1182         &    2001        &       615         \\
- 256 bytes   &   11015   &  6922 & 1921   &    2001        &      2332         &    2001        &      1191         \\
- 512 bytes   &   21935   & 13794 & 3785   &    3748        &      4632         &    2001        &      2343         \\
-1024 bytes   &   43775   & 27538 & 7716   &    7242        &      9232         &    3748        &      4647         \\
+  64 bytes   &    2825   &  1768 &  1129 &  523   &    2001        &       607         &    2001        &       615         \\
+ 128 bytes   &    5555   &  3486 &  2207 &  989   &    2001        &      1182         &    2001        &       615         \\
+ 256 bytes   &   11015   &  6922 &  4363 & 1921   &    2001        &      2332         &    2001        &      1191         \\
+ 512 bytes   &   21935   & 13794 &  8675 & 3785   &    3748        &      4632         &    2001        &      2343         \\
+1024 bytes   &   43775   & 27538 & 17299 & 7716   &    7242        &      9232         &    3748        &      4647         \\
 \bottomrule 
 \end{tabular}
 \end{table*}
@@ -71,8 +72,8 @@ Interestingly, the proposed scalar ISE-assisted implementation, $V_4$, gain the 
 For the message size smaller than 512 bytes, the $V_4$ implementation have a better performance compared to the \VERB{Vector1} implementation. 
 And $V_4$ outperforms the 128-bit Vector implementation of \VERB{Vector2} for all message sizes. But when the vector length increases to 256-bit, \VERB{Vector2} shows its advantage over $V_4$. It is worth noting that the vector instruction extension which is only presented in high(er)-end computational platforms cause a very large overhead in hardware while the proposed ISE approach requires negligible increased hardware cost to gain a good performance for short messages compared to the vectorisation implementations. That makes our ChaCha ISE be suitable for low(er)-end resource-constrained processors.
 
-In comparing the scalar implementation, the \VERB{Opt.} implementation gains a reduced instruction count to 63\% of the OpenSSL baseline instruction count.
-It obtains an encrypting performance of $26.9$ instructions/byte (with 1024 byte message) that is almost similar to the result reported in~\cite{Sto:19} (i.e. $27.9$ cycles/byte with most instructions executed in a single cycle). 
-Notably, the instruction count of the $V_4$ implementation is reduced to at least 29\% (resp. 19\%) of the \VERB{Opt.} (resp. the baseline) instruction count. In other words, the $V_4$ implementation achieves a $3.4\times$ (resp. $5.4\times$) speed-up compared to the \VERB{Opt.} (resp. the baseline) implementation. 
+In comparing the scalar implementation, the \VERB{Opt.1} implementation gains a reduced instruction count to 63\% of the OpenSSL baseline instruction count.
+It obtains an encrypting performance of $26.9$ instructions/byte (with 1024 byte message) that is almost similar to the result reported in~\cite{Sto:19} (i.e. $27.9$ cycles/byte with most instructions executed in a single cycle). In addition, the \VERB{Opt.2} implementation gains further improvement that reduce instruction count to 40\% of the OpenSSL baseline instruction count.
+Notably, the instruction count of the $V_4$ implementation is reduced to at least 19\% (resp. 29\%) of the baseline (resp. the \VERB{Opt.1}) instruction count. In other words, the $V_4$ implementation achieves a $5.4\times$ (resp. $3.4\times$) speed-up compared to the baseline (resp. the \VERB{Opt.1}) implementation. 
 
 

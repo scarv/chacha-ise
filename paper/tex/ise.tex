@@ -19,7 +19,7 @@ To ensure low area and latency overheads, the proposed ISEs follow further requi
 a) The operation of ISE can be implemented to execute in one clock cycle in its hardware module. 
 b) The ISE must store operands and results in the RISC-V general-purpose scalar register file. 
 c) The ISE must not introduce special-purpose architectural states, nor rely on special-purpose micro-architectural state (e.g., registers, caches, or scratch-pad memory).
-Overall, the proposed ISEs intentionally target performing ChaCha stream cipher on low(er)-end, resource-constrained (e.g., embedded) devices. The focus can be viewed as reasonable, because existing work on adding cryptographic support to the standard vector extension \cite{riscv:ext:vector:draft} already caters for high(er)-end alternatives. 
+Overall, the proposed ISEs intentionally target performing ChaCha stream cipher on low(er)-end, resource-constrained devices such as embedded IoT edge computing that don't support a vector engine. The focus can be viewed as reasonable because existing work on adding cryptographic support to the standard vector extension \cite{riscv:ext:vector:draft} already caters for high(er)-end alternatives. 
 We arrive at four ISE variants, the design of which is split into intuitive descriptions in the following subsections. 
 
 \subsubsection{Variant 1 ($V_1$)}

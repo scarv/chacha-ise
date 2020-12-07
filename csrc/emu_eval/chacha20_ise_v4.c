@@ -26,19 +26,21 @@ void chacha20_block_ise4(uint32_t out[16], uint32_t const in[16])
         //                                A          B            C              D
         CHACHA_QR_V4(a0,a2,a4,a6); // QR(x[1]||x[0], x[5]||x[4], x[ 9]||x[ 8], x[13]||x[12]) - column 1 & 0 
         CHACHA_QR_V4(a1,a3,a5,a7); // QR(x[3]||x[2], x[7]||x[6], x[11]||x[10], x[15]||x[14]) - column 3 & 2
-
-        rv64_packlh(t2, a2, a3); //  6, 5 
-        rv64_packlh(t3, a3, a2); //  4, 7 
-        rv64_packlh(t6, a7, a6); // 12,15
-        rv64_packlh(t7, a6, a7); // 14,13
+        REPACK_STATE(t2,t3,a2,a3); //  5, 4, 7, 6-> 6, 5, 4, 7
+        REPACK_STATE(t6,t7,a7,a6); // 13,12,15,14->12,15,14,13
+//        rv64_packlh(t2, a2, a3); //  6, 5 
+//        rv64_packlh(t3, a3, a2); //  4, 7 
+//        rv64_packlh(t6, a7, a6); // 12,15
+//        rv64_packlh(t7, a6, a7); // 14,13
         //                                A          B            C              D
         CHACHA_QR_V4(a0,t2,a5,t6); // QR(x[1]||x[0], x[6]||x[5], x[11]||x[10], x[12]||x[15]) - column 1 & 0 
         CHACHA_QR_V4(a1,t3,a4,t7); // QR(x[3]||x[2], x[4]||x[7], x[ 9]||x[ 8], x[14]||x[13]) - column 3 & 2
-
-        rv64_packlh(a2, t3, t2); //  5, 4 
-        rv64_packlh(a3, t2, t3); //  7, 6 
-        rv64_packlh(a6, t6, t7); // 13,12
-        rv64_packlh(a7, t7, t6); // 15,14
+        REPACK_STATE(a2,a3,t3,t2); //  6, 5, 4, 7-> 5, 4, 7, 6
+        REPACK_STATE(a6,a7,t6,t7); // 12,15,14,13->13,12,15,14
+//        rv64_packlh(a2, t3, t2); //  5, 4 
+//        rv64_packlh(a3, t2, t3); //  7, 6 
+//        rv64_packlh(a6, t6, t7); // 13,12
+//        rv64_packlh(a7, t7, t6); // 15,14
     }
 
     // 3 instructions each: load + add + store - 24 total.

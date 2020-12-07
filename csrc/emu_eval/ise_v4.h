@@ -12,6 +12,11 @@
     chacha_add(C,C,D);  chacha_xorrol07(B,B,C); \
 }
 
+#define REPACK_STATE(r0, r1, s0, s1) { \
+        rv64_packlh(r0, s0, s1); \
+        rv64_packlh(r1, s1, s0); \
+}
+
 //uint64_t chacha_add(uint64_t rs1, uint64_t rs2);
 #define chacha_add(rd, rs1, rs2) asm volatile ( \
     ".insn r CUSTOM_0, 7, 0b0011000, %0, %1, %2\n\t" :"=r" (rd) : "r" (rs1), "r" (rs2));

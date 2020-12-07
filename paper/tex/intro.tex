@@ -5,7 +5,7 @@ The Transport Layer Security (TLS) specifies the leading and standard protocols 
 The TLS protocol defines public key algorithms for establishing symmetric session keys, and different symmetric and MAC algorithms for the subsequent encrypted and authenticated communication.
 The efficiency of these primitives is essential to achieve good performance for secure communication.
 ChaCha20 is a high-throughput stream cipher which is a refinement of the Salsa20 stream cipher. It targets software platforms to aim at improving its security bounds without losing performance. ChaCha20 stream cipher and Poly1305 authenticator~\cite{RFC:16} are specified as one of the cipher suites by the current TLS 1.3~\cite[Section 9.1]{RFC:18:8446}.
-ChaCha20 is officially supported by world-leading companies like Google Inc. and global projects like OpenSSH.
+ChaCha20 is officially supported by world-leading companies like Google in their Chrome browser and Android devices for TLS and global projects like OpenSSH.
 Moreover, there are extensive efforts in the literature to intensively optimise the performance of ChaCha implementation on various platforms, namely optimised software (using ARM Cortex ISA~\cite{SSS:17} or RISCV ISA~\cite{Sto:19}), vectorisation AVX architecture~\cite{GolGue:14}, and hardware-based accelerator~\cite{KLA:19}.  
 
 \paragraph{RISC-V Instruction Set Architecture.}
