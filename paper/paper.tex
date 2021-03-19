@@ -1,6 +1,7 @@
 
 %\documentclass[preprint]{iacrtrans}
-\documentclass[sigconf]{acmart}
+%\documentclass[sigconf]{acmart}
+\documentclass[conference]{IEEEtran}
 
 \usepackage{paper}
 
@@ -9,7 +10,7 @@
 
 % =============================================================================
 
-\title{A lightweight ISE for ChaCha20 on 64-bit RISC-V}
+\title{A lightweight ISE for ChaCha20 on RISC-V}
 %\keywords{}
 \ifbool{anonymous}{%
 \author{}
@@ -40,20 +41,19 @@
 }%
 }%
 
-\ifbool{ACMsubmission}{%
-}{%
+
 \maketitle
-}%
+
 
 \begin{abstract}
-The ChaCha20 is a high-throughput stream cipher designed with the aim of ensuring high-security margins while achieving high performance on software platforms. RISC-V, an emerging, free, and open Instruction Set Architecture (ISA) is being developed with many instruction set extensions (ISE). ISEs are a native concept in RISC-V to support a relatively small RISC-V ISA to suit different use-cases including cryptographic acceleration via either standard or custom ISEs. This paper proposes a lightweight Instruction Set Extension (ISE) to support the ChaCha20 on 64-bit RISC-V architectures. This approach targets embedded computing systems that don't support a vector engine such as IoT edge devices. The proposed ISE is designed to accelerate the computation of ChaCha20's block function and align with the  RISC-V design principles. We show that our proposed ISEs help to improve the efficiency of ChaCha block function significantly. 
+The ChaCha20 is a high-throughput stream cipher designed with the aim of ensuring high-security margins while achieving high performance on software platforms. RISC-V, an emerging, free, and open Instruction Set Architecture (ISA) is being developed with many instruction set extensions (ISE). ISEs are a native concept in RISC-V to support a relatively small RISC-V ISA to suit different use-cases including cryptographic acceleration via either standard or custom ISEs. This paper proposes a lightweight Instruction Set Extension (ISE) to support the ChaCha20 on RISC-V architectures. This approach targets embedded computing systems that don't support a vector engine such as IoT edge devices. The proposed ISE is designed to accelerate the computation of ChaCha20's block function and align with the  RISC-V design principles. We show that our proposed ISEs help to improve the efficiency of ChaCha block function. 
 The ISE-assisted implementation of ChaCha encryption speeds up at least $5.4\times$ and $3.4\times$ compared to the OpenSSL baseline and ISA-based optimised implementation, respectively. 
 For encrypting short messages, the ISE-assisted implementation gains a comparative performance compared to the implementations using very high area overhead vector extensions.
 \end{abstract}
 
-\ifbool{ACMsubmission}{%
-\maketitle
-}%
+
+%\maketitle
+
 
 % =============================================================================
 
@@ -86,24 +86,24 @@ For encrypting short messages, the ISE-assisted implementation gains a comparati
 % =============================================================================
 
 
-\ifbool{ACMsubmission}{%
-\bibliographystyle{ACM-Reference-Format}
-}{%
-\bibliographystyle{alpha}
-}%
-\bibliography{paper}
+%\ifbool{ACMsubmission}{%
+%\bibliographystyle{ACM-Reference-Format}
+%}{%
+%\bibliographystyle{alpha}
+%}%
+%\bibliography{paper}
 
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,paper}
 % =============================================================================
 
-\appendix
-
-\newpage
+%\appendix
+%\newpage
 %\onecolumn
-\section{The ISE-assisted Implementation of the block function}
-\label{appx:ISE-assisted Implementation}
-\lstset{style=mystyle}
-\lstinputlisting[language=C]{./tex/blockfunction.c}
-%\import{./tex/}{ise-algorithm-conv.tex}
+%\section{The ISE-assisted Implementation of the block function}
+%\label{appx:ISE-assisted Implementation}
+%\lstset{style=mystyle}
+%\lstinputlisting[language=C]{./tex/blockfunction.c}
 
 \end{document}
 

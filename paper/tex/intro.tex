@@ -1,14 +1,14 @@
 %!TEX root=../paper.tex
-\paragraph{ChaCha for secure communication.}
+\paragraph{ChaCha for secure communication}
 Secure communication on the internet typically requires different cryptographic primitives and a common protocol applying these primitives to provide a protected channel between endpoints.
 The Transport Layer Security (TLS) specifies the leading and standard protocols for secure communication.
 The TLS protocol defines public key algorithms for establishing symmetric session keys, and different symmetric and MAC algorithms for the subsequent encrypted and authenticated communication.
 The efficiency of these primitives is essential to achieve good performance for secure communication.
 ChaCha20 is a high-throughput stream cipher which is a refinement of the Salsa20 stream cipher. It targets software platforms to aim at improving its security bounds without losing performance. ChaCha20 stream cipher and Poly1305 authenticator~\cite{RFC:16} are specified as one of the cipher suites by the current TLS 1.3~\cite[Section 9.1]{RFC:18:8446}.
 ChaCha20 is officially supported by world-leading companies like Google in their Chrome browser and Android devices for TLS and global projects like OpenSSH.
-Moreover, there are extensive efforts in the literature to intensively optimise the performance of ChaCha implementation on various platforms, namely optimised software (using ARM Cortex ISA~\cite{SSS:17} or RISCV ISA~\cite{Sto:19}), vectorisation AVX architecture~\cite{GolGue:14}, and hardware-based accelerator~\cite{KLA:19}.  
+Moreover, there are extensive efforts in the literature to intensively optimise the performance of ChaCha implementation on various platforms, namely optimised software (using ARM Cortex ISA~\cite{SSS:17} or RISCV ISA~\cite{Sto:19}), vectorisation AVX architecture~\cite{GolGue:14}, and dedicated hardware accelerators~\cite{KLA:19,PRH:19}.  
 
-\paragraph{RISC-V Instruction Set Architecture.}
+\paragraph{RISC-V Instruction Set Architecture}
 RISC-V is an open and free ISA specification with academic origins~\cite{riscv:14} adopting strongly RISC-oriented design principles. 
 The ISA can be implemented, modified, or extended with neither licence nor royalty requirements.
 RISC-V has been designed to be extended in a highly modular manner 
@@ -16,10 +16,10 @@ in which its extremely simple ISA, consisting of about 50 general-purpose instru
 standard or non-standard (i.e., custom) extensions to support special-purpose functionality.
 As a result of these features and availability of supporting ecosystems (e.g. compilation tool-chains) from the surrounding community,
 an increasing number of (typically open-source) RISC-V implementations have been available.
-The RISC-V ISA is designed with 32 registers, denoted GPR[i] for $0 \le i < 32$: GPR[0] is fixed to 0, whereas GPR[1] to GPR[31] are general-purpose. 
-The width of each GPR[i], and hence the base ISA are defined by \emph{XLEN} of which supported values can be 32, 64, 128 bits. 
+The RISC-V ISA is designed with 32 registers, denoted GPR[$i$] for $0 \le i < 32$: GPR[$0$] is fixed to 0, whereas GPR[$1$] to GPR[$31$] are general-purpose. 
+The width of each GPR[$i$], and hence the base ISA are defined by \emph{XLEN} of which supported values can be 32, 64, 128 bits. 
 
-\paragraph{Accelerate cryptographic implementation via an ISE approach.}
+\paragraph{Accelerate cryptographic implementation via an ISE approach}
 There are various styles that often exist for implementing a given cryptographic algorithm. 
 Techniques can be algorithm-agnostic or algorithm-specific, and based on the use of hardware only, software only, or a hybrid approach. 
 Instruction Set Extension (ISE)~\cite{GalBer:11,BarGioMar:09,RegIen:16}, as a hybrid approach, has proved its effectiveness within the context of cryptography. 
@@ -32,8 +32,8 @@ ISEs are {\em particularly} effective for resource-constrained (embedded) device
 because they afford a compromise improving footprint and latency vs. a software-only option 
 while also improving area overhead and flexibility vs. a hardware-only option.
 
-\paragraph{Remit and organisation.}
-This paper investigates an ISE approach to support for ChaCha. We focus on extending the RV64I base (i.e. XLEN = 64) and favouring a lightweight ISE to accelerate ChaCha performance targeting resource-constrained devices. The paper is organised as follows:
+\paragraph{Remit and organisation}
+This paper investigates an ISE approach to support for ChaCha software. We favour a lightweight method to accelerate ChaCha performance targeting resource-constrained devices. The paper is organised as follows:
 \REFSEC{sec:bg} provides some background and an abstract implementation of ChaCha.
 \REFSEC{sec:ise} proposes the design and implementation of four ISE variants for ChaCha. 
 In \REFSEC{sec:res}, we first present the evaluation of ISE variants on ChaCha block function, then realise a complete ISE-assisted ChaCha Implementation which is evaluated in comparison to optimised implementations using the RISC-V base ISA and vector extensions. 
