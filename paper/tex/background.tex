@@ -45,7 +45,7 @@ Each word is updated twice and affected by all four input words.
 		/*Encrypting loop*/ \;
 		\For{$i = 0$ {\bf upto} $\lceil\frac{L}{512}\rceil - 1$} {
 			$S[12] \ASN i$ \tcp{update counter} 
-			$K_i \ASN \ALG {ChaCha20Block}( S )$ \tcp{perform block function} 
+			$K_i \ASN \ALG {ChaCha20Block}( S )$ \; 
 			$C_i \ASN K_i \XOR P_i$   \tcp{perform encryption} 
 		}
 		$\KwRet{~C}$ \;

@@ -2,7 +2,7 @@
 
 \subsection{Single block function performance}
 \label{sec:eval:blk}
-We evaluate the accelerated implementations of the ChaCha block function in software compared with a vanilla implementation used in OpenSSL~\cite{OpenSSL} as a Baseline. The four accelerated functions denoted as $V_1$, $V_2$, $V_3$, and $V_4$ use the corresponding ChaCha ISE variant sets to accelerate their round operations. 
+We evaluate the accelerated implementations of the ChaCha block function in software compared with a vanilla implementation used in OpenSSL~\cite{OpenSSL} as a Baseline. The three accelerated functions denoted as $V_1$, $V_2$, and $V_3$ use the corresponding ChaCha ISE variant sets to accelerate their round operations. 
 Because ChaCha ISEs are encoded as R-type instructions, the accelerated functions easily use assembly RISC-V directives \VERB[asm]{.insn} to invoke ChaCha ISEs without the requirement of building modified toolchains.   
 For comparison's sake, all accelerated and baseline functions have the same function prototype and looping scheme (i.e. 10 double rounds each of which includes an odd and an even rounds). 
 They are complied using the RISC-V gcc version 9.2.0 with a performance optimisation flag (`-02') and targeting for the \VERB{rv64imac} architecture (`-march=rv64imac -mabi=lp64'). 
@@ -15,6 +15,7 @@ The Rocket chip is configured to run with the clock of 50~MHz.
 
 \begin{table}[b]
 \caption{Comparison of chacha block function performance}
+\centering
 \label{tab:res:sw:perf1}
 \begin{tabular}{crrl}
 \toprule            
@@ -23,9 +24,8 @@ Implementations        & Inst. count   & Cycle count & Inst. footprint\\
 \midrule
 Baseline & 2214 ($1.00\times$)     & 2991 ($1.00\times$) &  852 ($1.00\times$)\\
  $V_1$   &  434 ($0.20\times$)     & 1414 ($0.47\times$) &  382 ($0.45\times$)\\
- $V_2$   &  514 ($0.23\times$)     & 1977 ($0.66\times$) &  428 ($0.50\times$)\\
- $V_3$   &  594 ($0.27\times$)     & 2350 ($0.79\times$) &  454 ($0.53\times$)\\
- $V_4$   &  464 ($0.21\times$)     & 1420 ($0.47\times$) &  274 ($0.32\times$)\\
+ $V_2$   &  594 ($0.27\times$)     & 2350 ($0.79\times$) &  454 ($0.53\times$)\\
+ $V_3$   &  464 ($0.21\times$)     & 1420 ($0.47\times$) &  274 ($0.32\times$)\\
 
 \bottomrule
 \end{tabular}
@@ -33,10 +33,10 @@ Baseline & 2214 ($1.00\times$)     & 2991 ($1.00\times$) &  852 ($1.00\times$)\\
 
 The evaluation is shown in \REFTAB{tab:res:sw:perf1} in terms of instruction count, cycle count, and instruction footprint (in bytes) of the ChaCha block function. As can be seen, the accelerated functions have significantly reduced instruction counts to about 20\% of the baseline instruction count. Even though the cycle counts are also reduced in the case of the accelerated functions, but the reduction in cycle count metrics is not as good as in instruction count metrics. This could be due to inefficient data forwarding operations supporting ChaCha ISEs via the RoCC interface in the Rocket core micro-architecture. It should be noted that the operation of every ChaCha ISEs is computed in one clock cycle. One can view that as a trade-off between ineffective performance and invasiveness avoiding micro-architectural modifications.
 
-Comparing the ISE variants, $V_4$ obtains a good trade-off solution which provides the lowest instruction footprint and the second-lowest instruction count (32\% and 21\%, respectively, compared to the baseline) and consumes a small area overhead.
+Comparing the ISE variants, $V_3$ obtains a good trade-off solution which provides the lowest instruction footprint and the second-lowest instruction count (32\% and 21\%, respectively, compared to the baseline) and consumes a small area overhead.
 
 \subsection{Comparison to optimised software implementations}
-We then implement a completed ChaCha encryption/decryption function in which the accelerated block functions implemented in the above subsection is used to generate keystream blocks. The keystream blocks xors with input data-stream blocks to encrypt/decrypt the data streams. We investigate the $V_4$ set of the proposed ISE to accelerate the encryption function. 
+We then implement a completed ChaCha encryption/decryption function in which the accelerated block functions implemented in the above subsection is used to generate keystream blocks. The keystream blocks xors with input data-stream blocks to encrypt/decrypt the data streams. We investigate the $V_3$ set of the proposed ISE to accelerate the encryption function. 
 
 The performance of the implementation using the proposed ISE is evaluated in comparison to the existing implementations including scalar and vectorisation implementations.  
 For scalar (no vectorisation) implementations, only the standard 64-bit ISA (scalar) instructions of RISC-V are used. We choose the ChaCha implementation of OpenSSL as the Baseline. In addition, we implement an optimised variant denoted \VERB{Opt.1} which is written in assembly language to optimise the performance with our best effort. Moreover, we investigate an optimised implementation denoted \VERB{Opt.2} to use the Bitmanip extension supporting rotation instructions.
@@ -57,7 +57,7 @@ Currently, the Bitmanip and the vector instruction extensions have not been froz
 \begin{tabular}{rrrrrrrrr}
 \toprule             
 Message size & Baseline  &  RV64I & RV64IB  &  ISE   & \multicolumn{2}{c}{128 bit Vector} & \multicolumn{2}{c}{256 bit Vector} \\
-             & OpenSSL   &  Opt.1 &  Opt.2  & $V_4$  & \VERB{Vector1} & \VERB{Vector2}    & \VERB{Vector1} & \VERB{Vector2}    \\
+             & OpenSSL   &  Opt.1 &  Opt.2  & $V_3$  & \VERB{Vector1} & \VERB{Vector2}    & \VERB{Vector1} & \VERB{Vector2}    \\
 \midrule
   64 bytes   &    2825   &  1768 &  1129 &  523   &    2001        &       607         &    2001        &       615         \\
  128 bytes   &    5555   &  3486 &  2207 &  989   &    2001        &      1182         &    2001        &       615         \\
@@ -74,23 +74,25 @@ We observe that the lack of supporting rotation in the current version of the ve
 However, for the large messages, the vector-based implementations show their advantage over the scalar ISE based implementation. 
 The \VERB{Vector1} implementations provide the lowest instruction count executions when the message size is greater than 512 bytes. 
 The \VERB{Vector2} implementations outperform the \VERB{Vector1} implementations for shorter messages.
-Interestingly, the proposed scalar ISE-assisted implementation, $V_4$, gain the best performance in the case of single block messages.
-For the message size smaller than 512 bytes, the $V_4$ implementation have a better performance compared to the \VERB{Vector1} implementation. 
-And $V_4$ outperforms the 128-bit Vector implementation of \VERB{Vector2} for all message sizes. But when the vector length increases to 256-bit, \VERB{Vector2} shows its advantage over $V_4$. It is worth noting that the vector instruction extension which is only presented in high(er)-end computational platforms cause a very large overhead in hardware while the proposed ISE approach requires negligible increased hardware cost to gain a good performance for short messages compared to the vectorisation implementations. That makes our ChaCha ISE be suitable for low(er)-end resource-constrained processors.
+Interestingly, the proposed scalar ISE-assisted implementation, $V_3$, gain the best performance in the case of single block messages.
+For the message size smaller than 512 bytes, the $V_3$ implementation have a better performance compared to the \VERB{Vector1} implementation. 
+And $V_3$ outperforms the 128-bit Vector implementation of \VERB{Vector2} for all message sizes. But when the vector length increases to 256-bit, \VERB{Vector2} shows its advantage over $V_3$. It is worth noting that the vector instruction extension which is only presented in high(er)-end computational platforms cause a very large overhead in hardware while the proposed ISE approach requires negligible increased hardware cost to gain a good performance for short messages compared to the vectorisation implementations. That makes our ChaCha ISE be suitable for low(er)-end resource-constrained processors.
 
 In comparing the scalar implementation, the \VERB{Opt.1} implementation gains a reduced instruction count to 63\% of the OpenSSL baseline instruction count.
 It obtains an encrypting performance of $26.9$ instructions/byte (with 1024 byte message) that is almost similar to the result reported in~\cite{Sto:19} (i.e. $27.9$ cycles/byte with most instructions executed in a single cycle). Moreover, the \VERB{Opt.2} implementation has further improvement that reduces its instruction count to 40\% of the baseline instruction count.
-Notably, the instruction count of the $V_4$ implementation is reduced to at least 19\% (resp. 29\%) of the baseline (resp. the \VERB{Opt.1}) instruction count. In other words, the $V_4$ implementation achieves a $5.4\times$ (resp. $3.4\times$) speed-up compared to the baseline (resp. the \VERB{Opt.1}) implementation.
+Notably, the instruction count of the $V_3$ implementation is reduced to at least 19\% (resp. 29\%) of the baseline (resp. the \VERB{Opt.1}) instruction count. In other words, the $V_3$ implementation achieves a $5.4\times$ (resp. $3.4\times$) speed-up compared to the baseline (resp. the \VERB{Opt.1}) implementation.
 
 \subsection{Comparison to dedicated hardware alternatives}
 It is possible to implement dedicated hardware as an independent co-processor for ChaCha. 
-Existing works presented on the literatures~\cite{KLA:19,PRH:19}.
+Existing works presented in the literature~\cite{KLA:19,PRH:19}.
 It is obvious that the dedicated hardware would be much faster compared to the software-only as well as ISE-assisted software alternatives.
 However, the dedicated hardware IP core consumes a large amount of area overhead 
-that makes it may not suitable for lightweight, resource-constraint systems.
-For example, the smallest dedicated hardware using logic slices presented in ~\cite{PRH:19} consumes 852 FPGA logic slides that is about a magnitude larger than the number of slide used by the proposed ISE (i.e., 100 slides).
+that makes it may not suitable for lightweight, resource-constrained systems.
+For example, the smallest dedicated hardware using logic slices presented in ~\cite{PRH:19} consumes 852 FPGA logic slides that are about a magnitude larger than the number of slides used by the proposed ISE (i.e., 90 slides).
 Moreover, the dedicated hardware IP has its fixed functionality dedicating to the ChaCha function, 
 while the proposed ISE could potentially be reused 
-to improve the performance of other cryptographic primitives in the ARX family such as Speck~\cite{BSSTWW:13} and Alzette~\cite{BBC:20}.  
+to improve the performance of other cryptographic primitives in the ARX family.   
+For example, the $V_3$ ISE variant offers effective packing operations of 32-bit addition and XOR 
+that are intensively used in Speck~\cite{BSSTWW:13} and Alzette~\cite{BBC:20}.  
 
 

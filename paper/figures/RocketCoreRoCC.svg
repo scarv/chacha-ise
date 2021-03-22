@@ -13,7 +13,10 @@
    id="svg6835"
    version="1.1"
    inkscape:version="1.0.1 (0767f8302a, 2020-10-17)"
-   sodipodi:docname="RocketCoreRoCC.svg">
+   sodipodi:docname="RocketCoreRoCC.svg"
+   inkscape:export-filename="/home/thinhpham/Documents/SCARV/chacha-ise/paper/figures/RocketCoreRoCC.png"
+   inkscape:export-xdpi="1024"
+   inkscape:export-ydpi="1024">
   <defs
      id="defs6837">
     <marker
@@ -3713,7 +3716,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="2"
      inkscape:cx="241.91159"
-     inkscape:cy="206.69012"
+     inkscape:cy="166.69012"
      inkscape:document-units="px"
      inkscape:current-layer="g109130"
      showgrid="false"
