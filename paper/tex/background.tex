@@ -22,12 +22,12 @@ The ChaCha process for encryption and decryption can be described as in Algorith
 \subsection{Block function}
 For the aspect of implementation, the ChaCha20 block function firstly executes 10 double rounds which alternately perform odd rounds and even rounds on the input state matrix. The processed state matrix is, then, added to the input state matrix to result in the output state matrix. The operation of the block function is described in Algorithm~\ref{alg::ChaCha::block}.
 
-\paragraph{Round function:} Both of the odd and even rounds have 4 quarter rounds.
+\paragraph{Round function} Both of the odd and even rounds have 4 quarter rounds.
 In the odd (column) round, the quarter rounds operate on four elements of the state matrix's columns.
 While the quarter rounds of the even (diagonal) round operate on the diagonals of the state matrix.
 For some implementations, one can view that a diagonal round can be equivalent to a column round, and vice versa, if the state matrix is rearranged (rotating the matrix's columns 1, 2, and 3) before the rounds. 
 
-\paragraph{Quarter-Round function:} A quarter round updates four state words of the state matrix as shown in~Algorithm~\ref{alg::ChaCha::quarterround}. 
+\paragraph{Quarter-Round function} A quarter round updates four state words of the state matrix as shown in~Algorithm~\ref{alg::ChaCha::quarterround}. 
 The quarter round based on Add-Rotate-Xor (ARX) operations requires four sets of 32-bit additions, xors and  rotations operating on the state words. 
 Each word is updated twice and affected by all four input words.
 
