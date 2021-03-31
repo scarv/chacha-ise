@@ -7,9 +7,9 @@ Because ChaCha ISEs are encoded as R-type instructions, the accelerated function
 For comparison's sake, all accelerated and baseline functions have the same function prototype and looping scheme (i.e., 10 double rounds each of which includes an odd and an even rounds). 
 They are complied using the RISC-V gcc version 9.2.0 with a performance optimisation flag (`-02') and targeting for the \VERB{rv64imac} architecture (`-march=rv64imac -mabi=lp64'). 
 
-The compiled software runs on the Rocket chip system supporting the relevant set of ISEs via the RoCC interface.
+The compiled software runs on the Rocket Chip system supporting the relevant set of ISEs via the RoCC interface.
 The system is implemented on the Kintex-7 XC7K160T FPGA of a SASEBO-GIII platform.
-The Rocket chip is configured to run with the clock of 50~MHz.
+The Rocket Chip is configured to run with the clock of 50~MHz.
 
 %We use an open-source Verilator tool~\cite{Verilator} compiling the Verilog files of the integrated system (mentioned in \REFSEC{sec:ise:hw:sys}) including a Rocket core and ChaCha ISEs to generate a cycle-accurate behavioural emulator for the system. The generated emulator is used to evaluate the performance of the software of the ChaCha block functions.  
 
