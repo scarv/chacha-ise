@@ -1,14 +1,14 @@
 %!TEX root=../paper.tex
-The ChaCha stream cipher is a 256-bit stream cipher, designed by Bernstein in 2008~\cite{Ber:08}.
+The ChaCha cipher is a 256-bit stream cipher, designed by Bernstein in 2008~\cite{Ber:08}.
 ChaCha based on the Salsa stream cipher has naturally a high-throughput performance on software platforms.
 Compared to Salsa, ChaCha has better diffusion per round and conjecturally increasing resistance to cryptanalysis. 
 
 \subsection{Encryption and Decryption}
-The ChaCha encryption and decryption can have the same process in which the input data stream is encrypted or decrypted by chopping the input into 64-byte blocks and XOR-ing them with the 64-byte output blocks of the ChaCha block function. The block function processes on the ChaCha state matrix of $4\times4$ word (32-bit) elements to generate the 64-byte output block.
+The ChaCha encryption and decryption can have the same process in which the input data stream is encrypted or decrypted by chopping the input into 64-byte blocks and Xor-ing them with the 64-byte output blocks of the ChaCha block function. The block function processes on the ChaCha state matrix of $4\times4$ word (32-bit) elements to generate the 64-byte output block.
 The ChaCha state matrix is initiated by a 4-word constant, an 8-word secret key, 4 words of counter/nonce. 
 Note that the original ChaCha uses a 2-word nonce and a 2-word counter to allowing a practically unlimited amount of data to be encrypted while the IETF variant~\cite{RFC:18} increases the nonce size to 3 words, but reduces the counter size down to one word.
 That limits the amount of encrypted data only up to 256 GB but helps the encryption more safely with a longer (key, nonce) pair. 
-This paper adopts the IETF variant of which the initial state matrix is shown in (\ref{equ:bg:ChaChaMatix}.) %~\REFFIG{fig:bg:ChaChaMatix}.
+This paper adopts the IETF variant of which the initial state matrix is shown in (\ref{equ:bg:ChaChaMatix}). %~\REFFIG{fig:bg:ChaChaMatix}.
 The ChaCha process for encryption and decryption can be described as in Algorithm~\ref{alg::ChaCha::process}.
 
 %\begin{figure}
@@ -33,11 +33,14 @@ counter  & nonce[$0$] & nonce[$1$] & nonce[$2$] \\
 ChaCha cipher family provides three variants which use different number
 of operations performed on the state (i.e., $8$, $12$ or $20$ rounds). 
 A larger number of rounds increases data diffusion and therefore more secure, but longer processing time. 
-From now on, we focus on the ChaCha20 variant that executes $20$ rounds which alternately perform odd rounds and even rounds. The processed state matrix is, then, added to the input state matrix to result in the output state matrix. The operation of the block function is described in Algorithm~\ref{alg::ChaCha::block}.
+From now on, we focus on the ChaCha20 variant that executes $20$ rounds in a block function.
+The block function processes a state matrix using odd rounds and even rounds alternately. 
+Then, the processed state matrix is added to the input state matrix to result in the output state matrix. 
+The operation of the block function is described in Algorithm~\ref{alg::ChaCha::block}.
 
 \paragraph{Round function} Both of the odd and even rounds have 4 quarter rounds.
-In the odd (column) round, the quarter rounds operate on four elements of the state matrix's columns.
-While the quarter rounds of the even (diagonal) round operate on the diagonals of the state matrix.
+In the odd (column) round, the quarter rounds operate on four elements of the state matrix's columns,
+while the quarter rounds of the even (diagonal) round operate on the diagonals of the state matrix.
 For some implementations, one can view that a diagonal round can be equivalent to a column round, and vice versa, if the state matrix is rearranged (rotating the matrix's columns 1, 2, and 3) before the rounds. 
 
 \paragraph{Quarter-Round function} A quarter round updates four state words of the state matrix as shown in~Algorithm~\ref{alg::ChaCha::quarterround}. 
@@ -63,14 +66,14 @@ Each word is updated twice and affected by all four input words.
 		}
 		$\KwRet{~C}$ \;
 	}
-	\caption{ChaCha Stream Cipher Process}
+	\caption{ChaCha Stream Cipher Process.}
 	\label{alg::ChaCha::process}
 \end{algorithm}
 
 \begin{algorithm}
-	\KwData  { an input state matrix $S$ as an array of 16 32-bit state elements
+	\KwData  { input state matrix $S$ of 16 32-bit state elements
 	}
-	\KwResult{ an output state matrix $K$ as an array of 16 32-bit state elements
+	\KwResult{ output state matrix $K$
 	}
 	\BlankLine
 	\KwFn{$\ALG{ChaChaBlock}( S )$}{
@@ -91,7 +94,7 @@ Each word is updated twice and affected by all four input words.
 		$K \ASN X + S$ \;
 		$\KwRet{~K}$ \;
 	}
-	\caption{ChaCha Block function}
+	\caption{ChaCha Block function.}
 	\label{alg::ChaCha::block}
 \end{algorithm}
 
@@ -110,6 +113,6 @@ Each word is updated twice and affected by all four input words.
 	$C \ASN C + D,~B \ASN B \XOR C,~B \ASN B \LRT  7$ \;
   $\KwRet{\TUPLE{ A, B, C, D }}$ \;
 }
-\caption{ChaCha Quarter Round}
+\caption{ChaCha Quarter Round.}
 \label{alg::ChaCha::quarterround}
 \end{algorithm}

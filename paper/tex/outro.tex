@@ -3,7 +3,7 @@ In this paper, we presented the design, implementation, and evaluation of three 
 We show that our proposed ISE variants help improve significantly the efficiency of ChaCha block function wrt. both execution latency and memory footprint.  
 Our ISE-assisted implementation of ChaCha encryption speeds up at least $5.4\times$ and $3.4\times$ compared to the OpenSSL baseline and ISA-base optimised implementation, respectively. 
 For encrypting short messages, the ISE-assisted implementation gains a comparative performance compared to the vectorised implementations which demand a large hardware overhead to support vector instruction extension.
-Moreover, the ISE hardware implementation only causes a negligible increased area overhead, about 3\%, on the Rocket Chip system that makes our ChaCha ISE be suitable for resource-constrained (embedded) processors.
+Moreover, the ISE hardware implementation only causes a negligible increased area overhead, about 3\%, on the Rocket Chip system that makes our ChaCha ISE be suitable for resource-constrained processors. While showing potential, the proposed ChaCha ISE needs further investigations in future works to be more generic and efficient for other ARX ciphers.
 
 
 

@@ -14,7 +14,7 @@ The Rocket Chip is configured to run with the clock of 50~MHz.
 %We use an open-source Verilator tool~\cite{Verilator} compiling the Verilog files of the integrated system (mentioned in \REFSEC{sec:ise:hw:sys}) including a Rocket core and ChaCha ISEs to generate a cycle-accurate behavioural emulator for the system. The generated emulator is used to evaluate the performance of the software of the ChaCha block functions.  
 
 \begin{table}[b]
-\caption{Comparison of chacha block function performance}
+\caption{Comparison of chacha block function performance.}
 \centering
 \label{tab:res:sw:perf1}
 \begin{tabular}{crrl}
@@ -36,22 +36,22 @@ The evaluation is shown in \REFTAB{tab:res:sw:perf1} in terms of instruction cou
 Comparing the ISE variants, $V_3$ obtains a good trade-off solution which provides the lowest instruction footprint and the second-lowest instruction count (32\% and 21\%, respectively, compared to the baseline) and consumes a small area overhead.
 
 \subsection{Comparison to optimised software implementations}
-We then implement a completed ChaCha encryption/decryption function in which the accelerated block functions implemented in the above subsection is used to generate keystream blocks. The keystream blocks xors with input data-stream blocks to encrypt/decrypt the data streams. We investigate the $V_3$ set of the proposed ISE to accelerate the encryption function. 
+We implement a completed ChaCha encryption/decryption function in which the accelerated block functions implemented in the above subsection is used to generate keystream blocks. The keystream blocks xors with input data-stream blocks to encrypt/decrypt the data streams. We investigate the $V_3$ set of the proposed ISE to accelerate the encryption function. 
 
-The performance of the implementation using the proposed ISE is evaluated in comparison to the existing implementations including scalar and vectorisation implementations.  
+The performance of the proposed ISE-assisted implementation is evaluated in comparison to the existing implementations including scalar and vectorisation implementations.  
 For scalar (no vectorisation) implementations, only the standard 64-bit ISA (scalar) instructions of RISC-V are used. We choose the ChaCha implementation of OpenSSL as the Baseline. In addition, we implement an optimised variant denoted $V_4$ which is written in assembly language to optimise the performance with our best effort. Moreover, we investigate an optimised implementation denoted $V_5$ to use the Bitmanip extension supporting rotation instructions.
 
 For the vectorisation implementations, we make use of vectorised instructions to accelerate ChaCha encryption/decryption operations. 
 We adopt two approaches, one, denoted \VERB{Vector1}, implements a cell-oriented approach used in OpenSSL which processes multiple blocks in parallel.
 The other, denoted \VERB{Vector2}, follows a row-oriented approach presented in~\cite{GolGue:14}. This approach packs state elements in ChaCha blocks' rows into the same vectorised registers.
-In addition, we investigate two versions of vector lengths, namely 128 bits and 256 bits, for the vectorisation implementations. 
 Different from the original implementations, the vectorisation implementations are realised using the vector instruction extension set~\cite{riscv:ext:vector:draft} for RISC-V processors instead of using AVX/AVX2 architecture on \VERB{x86_64} processors.
+In addition, we investigate two versions of vector lengths, namely 128 bits and 256 bits, for the vectorisation implementations. 
 
 The implementations are compiled as the same set up in \REFSEC{sec:eval:blk} but targeting to the \VERB{rv64imacb} and the \VERB{rv64gcv} architectures for the Bitmanip extension and the vector instruction extension, respectively. 
-Currently, the Bitmanip and the vector instruction extensions have not been frozen. We adopt the latest published versions v0.92 and v0.9 for the Bitmanip and the vector extensions, respectively. Since there is not yet an open-source implementation supporting the RISC-V vector instruction extension is available, we use \VERB{Spike}~\cite{Spike}, an instruction set simulator, to evaluate the implementations.
+Currently, the Bitmanip and the vector extensions have not been frozen. We adopt the latest published versions v0.92 and v0.9 for the Bitmanip and the vector extensions, respectively. Since there is not yet an open-source implementation supporting the RISC-V vector instruction extension is available, we use \VERB{Spike}~\cite{Spike}, an instruction set simulator, to evaluate the implementations.
 
 \begin{table*}
-\caption{Comparison of encryption/decryption performance in instruction count for different message sizes between the Baseline, ISA-based optimised implementation, ISE-assisted implementation and different vectorization implementations}
+\caption{Comparison of encryption/decryption performance in instruction count for different message sizes between the Baseline, ISA-based optimised implementation, ISE-assisted implementation and different vectorization implementations.}
 \label{tab:res:sw:perf2}
 \centering
 \begin{tabular}{rrrrrrrrr}
@@ -85,7 +85,7 @@ Notably, the instruction count of the $V_3$ implementation is reduced to at leas
 \subsection{Comparison to dedicated hardware alternatives}
 It is possible to implement dedicated hardware as an independent co-processor for ChaCha. 
 Existing works presented in the literature~\cite{KLA:19,PRH:19}.
-It is obvious that the dedicated hardware would be much faster compared to the software-only as well as ISE-assisted software alternatives.
+The dedicated hardware is obviously much faster compared to the software-only as well as ISE-assisted software alternatives.
 However, the dedicated hardware IP core consumes a large amount of area overhead 
 that makes it may not suitable for lightweight, resource-constrained systems.
 For example, the smallest dedicated hardware using logic slices presented in ~\cite{PRH:19} consumes 852 FPGA logic slides that are about a magnitude larger than the number of slides used by the proposed ISE (i.e., 90 slides).

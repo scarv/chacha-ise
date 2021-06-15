@@ -5,7 +5,6 @@
 
 \usepackage{paper}
 
-
 \begin{document}
 
 % =============================================================================
@@ -15,35 +14,16 @@
 \ifbool{anonymous}{%
 \author{}
 %\institute{}
-}{%
-\ifbool{ACMsubmission}{%
-\author{Ben Marshall}
-\affiliation{%
-  \institution{Department of Computer Science, University of Bristol.}
-  \country{}}%
-\email{ben.marshall@bristol.ac.uk}
-\author{Daniel Page}
-\affiliation{%
-  \institution{Department of Computer Science, University of Bristol.}
-  \country{}}%
-\email{daniel.page@bristol.ac.uk}
-\author{Thinh Pham}
-\affiliation{%
-  \institution{Department of Computer Science, University of Bristol.}
-\country{}}%
-\email{th.pham@bristol.ac.uk}
-}{%
+}{
 \author{%
-  Ben Marshall \and Dan Page \and Thinh Pham }%
-\institute{%
-  Department of Computer Science, University of Bristol.                  \\
-  \email{{ben.marshall,daniel.page,th.pham}@bristol.ac.uk}}%
-}%
-}%
-
+	\IEEEauthorblockN{ Ben Marshall, Dan Page, and Thinh Hung Pham	}	
+	\IEEEauthorblockA{%
+        Department of Computer Science, University of Bristol, United Kingdom    \\
+		Email: \{ben.marshall, daniel.page, th.pham\}@bristol.ac.uk}
+	}
+}
 
 \maketitle
-
 
 \begin{abstract}
 ChaCha is a high-throughput stream cipher designed with the aim of ensuring high-security margins while achieving high performance on software platforms. RISC-V, an emerging, free, and open Instruction Set Architecture (ISA) is being developed with many instruction set extensions (ISE). ISEs are a native concept in RISC-V to support a relatively small RISC-V ISA to suit different use-cases including cryptographic acceleration via either standard or custom ISEs. This paper proposes a lightweight ISE to support ChaCha on RISC-V architectures. This approach targets embedded computing systems such as IoT edge devices that don't support a vector engine. The proposed ISE is designed to accelerate the computation of the ChaCha block function and align with the  RISC-V design principles. We show that our proposed ISEs help to improve the efficiency of the ChaCha block function. 
@@ -51,6 +31,9 @@ The ISE-assisted implementation of ChaCha encryption speeds up at least $5.4\tim
 For encrypting short messages, the ISE-assisted implementation gains a comparative performance compared to the implementations using very high area overhead vector extensions.
 \end{abstract}
 
+%\begin{IEEEkeywords}
+%	ChaCha; Instruction Set Extension; RISC-V	
+%\end{IEEEkeywords}
 
 %\maketitle
 
@@ -82,6 +65,10 @@ For encrypting short messages, the ISE-assisted implementation gains a comparati
 \section{Conclusion}
 \label{sec:outro}
 \input{tex/outro.tex}
+
+\section*{Acknowledgement}
+	This work has been supported in part by EPSRC via grant EP/R012288/1,
+	under the RISE (http://www.ukrise.org) programme.
 
 % =============================================================================
 
