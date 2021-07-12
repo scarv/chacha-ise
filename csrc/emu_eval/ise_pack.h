@@ -1,4 +1,9 @@
-
+/* Copyright (C) 2021 SCARV project <info@scarv.org>
+ *
+ * Use of this source code is restricted per the MIT license, a copy of which 
+ * can be found at https://opensource.org/licenses/MIT (or should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
 #include <stdint.h>
 
 #ifndef __IPACK_H__
@@ -37,4 +42,4 @@
     :"t1", "t2", "t3", "t4");
 #endif
 
-/*    "nop \n\t nop \n\t nop \n\t nop\n\t" \*/
+

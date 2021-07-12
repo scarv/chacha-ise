@@ -1,6 +1,12 @@
+/* Copyright (C) 2021 SCARV project <info@scarv.org>
+ *
+ * Use of this source code is restricted per the MIT license, a copy of which 
+ * can be found at https://opensource.org/licenses/MIT (or should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
+
 /* 
  * referenced implementation @ https://github.com/edre/rvv-chacha-poly
- *
  */
 #include "test.h"
 
@@ -12,7 +18,6 @@ void println_hex(uint8_t* data, int size) {
   }
   printf("\n");
 }
-
 
 bool test_chacha(const uint8_t* data, size_t len, const uint8_t key[32], const uint8_t nonce[12], bool verbose) {
 
@@ -72,10 +77,10 @@ bool test_chacha(const uint8_t* data, size_t len, const uint8_t key[32], const u
   }
   
   if (pass) {
-    printf("openssl: inst_count=%d, inst/byte=%.02f\n", golden_count, (float)(golden_count)/len);
-    printf("isa_opt: inst_count=%d, inst/byte=%.02f\n", isaopt_count, (float)(isaopt_count)/len);
-    printf("vector1: inst_count=%d, inst/byte=%.02f\n", vec_v1_count, (float)(vec_v1_count)/len);
-    printf("vector2: inst_count=%d, inst/byte=%.02f\n", vec_v2_count, (float)(vec_v2_count)/len);
+    printf("openssl: inst_count=%5d, inst/byte=%.02f\n", golden_count, (float)(golden_count)/len);
+    printf("isa_opt: inst_count=%5d, inst/byte=%.02f\n", isaopt_count, (float)(isaopt_count)/len);
+    printf("vector1: inst_count=%5d, inst/byte=%.02f\n", vec_v1_count, (float)(vec_v1_count)/len);
+    printf("vector2: inst_count=%5d, inst/byte=%.02f\n", vec_v2_count, (float)(vec_v2_count)/len);
   }
   return pass;
 }
@@ -91,7 +96,6 @@ int main(int argc, uint8_t *argv[]) {
     rand *= 101;
     rand %= 16777213; // random prime
     data[i] = (uint8_t)(rand); 
-//    data[i] = 0;
   }
   uint8_t key[32] = "Setec astronomy;too many secrets";
   uint8_t nonce[12] = "BurnAfterUse";

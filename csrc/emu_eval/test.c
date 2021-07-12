@@ -1,3 +1,9 @@
+/* Copyright (C) 2021 SCARV project <info@scarv.org>
+ *
+ * Use of this source code is restricted per the MIT license, a copy of which 
+ * can be found at https://opensource.org/licenses/MIT (or should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
 
 #include <stdio.h>
 #include <stdint.h>
@@ -34,7 +40,7 @@ uint32_t output[16];
 uint32_t output1[16];
 uint32_t output2[16];
 uint32_t output3[16];
-uint32_t output4[16];
+
 
 uint32_t check_result(uint32_t n, uint32_t expect, uint32_t res){
     if(expect != res)  {
@@ -47,8 +53,8 @@ uint32_t check_result(uint32_t n, uint32_t expect, uint32_t res){
 int main(int argc, char ** argv) {
     uint64_t cycle_pre, cycle_post;                         
     uint64_t instr_pre, instr_post;                         
-    uint64_t ncyc0, ncyc1, ncyc2, ncyc3, ncyc4;
-    uint64_t nins0, nins1, nins2, nins3, nins4; 
+    uint64_t ncyc0, ncyc1, ncyc2, ncyc3;
+    uint64_t nins0, nins1, nins2, nins3; 
     printf("Test\n");
 
     int mismatches = 0;	
@@ -72,7 +78,6 @@ int main(int argc, char ** argv) {
     MEASURE( ncyc1, nins1, chacha20_block_ise1(output1, input) );
     MEASURE( ncyc2, nins2, chacha20_block_ise2(output2, input) );
     MEASURE( ncyc3, nins3, chacha20_block_ise3(output3, input) );
-    MEASURE( ncyc4, nins4, chacha20_block_ise4(output4, input) );
  
     for(int i = 0; i < 16; i ++) {
 
@@ -80,16 +85,14 @@ int main(int argc, char ** argv) {
         mismatches += check_result(1,expect[i], output1[i]);
         mismatches += check_result(2,expect[i], output2[i]);
         mismatches += check_result(3,expect[i], output3[i]);
-        mismatches += check_result(4,expect[i], output4[i]);
     }
 
     if(mismatches == 0) {
         printf("PASS\n");
-        printf("N_cyc0: %d, N_ins0: %d\n", ncyc0, nins0);
-        printf("N_cyc1: %d, N_ins1: %d\n", ncyc1, nins1);
-        printf("N_cyc2: %d, N_ins2: %d\n", ncyc2, nins2);
-        printf("N_cyc3: %d, N_ins3: %d\n", ncyc3, nins3);
-        printf("N_cyc4: %d, N_ins4: %d\n", ncyc4, nins4);
+        printf("The reference performance: N_cyc0: %d, N_ins0: %d\n", ncyc0, nins0);
+        printf("The  V1 ISEs  performance: N_cyc1: %d, N_ins1: %d\n", ncyc1, nins1);
+        printf("The  V2 ISEs  performance: N_cyc2: %d, N_ins2: %d\n", ncyc2, nins2);
+        printf("The  V3 ISEs  performance: N_cyc3: %d, N_ins3: %d\n", ncyc3, nins3);
     }
     
     return (mismatches > 0);

@@ -1,47 +1,55 @@
-
+/* Copyright (C) 2021 SCARV project <info@scarv.org>
+ *
+ * Use of this source code is restricted per the MIT license, a copy of which 
+ * can be found at https://opensource.org/licenses/MIT (or should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
 module chacha_ise_v3 (
-input  wire [63:0]  rs1     ,
-input  wire [63:0]  rs2     ,
+input  wire [63:0]  rs1,
+input  wire [63:0]  rs2,
 
-input  wire         op_ad0  ,
-input  wire         op_bc0  ,
-input  wire         op_ad1  ,
-input  wire         op_bc1  ,
+input  wire         op_add,
+input  wire         op_xorrol_16,
+input  wire         op_xorrol_12,
+input  wire         op_xorrol_8,
+input  wire         op_xorrol_7,
 
 output wire [63:0]  rd
 );
 
-wire [31:0] a = rs1[63:32];
-wire [31:0] b = rs2[63:32];
-wire [31:0] c = rs2[31: 0];
-wire [31:0] d = rs1[31: 0];
+wire [31:0] a_hi = rs1[63:32];
+wire [31:0] b_hi = rs2[63:32];
+wire [31:0] a_lo = rs1[31: 0];
+wire [31:0] b_lo = rs2[31: 0];
 
-wire    ad = op_ad0 || op_ad1;
-wire    bc = op_bc0 || op_bc1;
+wire [31:0] add_hi = a_hi + b_hi;
+wire [31:0] add_lo = a_lo + b_lo;
 
-wire [31:0] add_lhs = ad ? a : c;
-wire [31:0] add_rhs = ad ? b : d;
-wire [31:0] add_out = add_lhs + add_rhs;
+wire [31:0] xor_hi = a_hi ^ b_hi;
+wire [31:0] xor_lo = a_lo ^ b_lo;
 
-wire [31:0] xor_rhs = ad ? d : b;
-wire [31:0] xor_out = add_out ^ xor_rhs;
+wire [31:0] rol_hi_16 = {xor_hi[15:0],xor_hi[31:16]};
+wire [31:0] rol_hi_12 = {xor_hi[19:0],xor_hi[31:20]};
+wire [31:0] rol_hi_8  = {xor_hi[23:0],xor_hi[31:24]};
+wire [31:0] rol_hi_7  = {xor_hi[24:0],xor_hi[31:25]};
 
-wire [ 4:0] rol_amnt= op_ad0 ? 16   :
-                      op_bc0 ? 12   :
-                      op_ad1 ?  8   :
-                   /* op_bc1*/  7   ;
+wire [31:0] xorrol_hi = op_xorrol_7   ? rol_hi_7  :
+                        op_xorrol_8   ? rol_hi_8  :
+                        op_xorrol_12  ? rol_hi_12 :
+                     /* op_xorrol_16 */ rol_hi_16 ;
 
-wire [31:0] rol_ad0 = {xor_out[15:0],xor_out[31:16]};
-wire [31:0] rol_bc0 = {xor_out[19:0],xor_out[31:20]};
-wire [31:0] rol_ad1 = {xor_out[23:0],xor_out[31:24]};
-wire [31:0] rol_bc1 = {xor_out[24:0],xor_out[31:25]};
-wire [31:0] rol_out = op_ad0 ? rol_ad0  :
-                      op_bc0 ? rol_bc0  :
-                      op_ad1 ? rol_ad1  :
-                   /* op_bc1*/ rol_bc1  ;
+wire [31:0] rol_lo_16 = {xor_lo[15:0],xor_lo[31:16]};
+wire [31:0] rol_lo_12 = {xor_lo[19:0],xor_lo[31:20]};
+wire [31:0] rol_lo_8  = {xor_lo[23:0],xor_lo[31:24]};
+wire [31:0] rol_lo_7  = {xor_lo[24:0],xor_lo[31:25]};
 
-wire [31:0] rd_hi   = ad ? add_out : rol_out;
-wire [31:0] rd_lo   = ad ? rol_out : add_out;
+wire [31:0] xorrol_lo = op_xorrol_7   ? rol_lo_7  :
+                        op_xorrol_8   ? rol_lo_8  :
+                        op_xorrol_12  ? rol_lo_12 :
+                     /* op_xorrol_16 */ rol_lo_16 ;
+
+wire [31:0] rd_hi   = op_add ? add_hi : xorrol_hi;
+wire [31:0] rd_lo   = op_add ? add_lo : xorrol_lo;
 
 assign      rd      = {rd_hi, rd_lo};
 

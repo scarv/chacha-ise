@@ -1,4 +1,3 @@
-
 #include "chacha20.h"
 
 //! A vanilla implementation of the ChaCha20 block function.

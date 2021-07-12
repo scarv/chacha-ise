@@ -1,4 +1,9 @@
-
+/* Copyright (C) 2021 SCARV project <info@scarv.org>
+ *
+ * Use of this source code is restricted per the MIT license, a copy of which 
+ * can be found at https://opensource.org/licenses/MIT (or should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
 #include <stdint.h>
 #include "ise_pack.h"
 
@@ -12,6 +17,5 @@
 void chacha20_block_ise1(uint32_t out[16], uint32_t const in[16]);
 void chacha20_block_ise2(uint32_t out[16], uint32_t const in[16]);
 void chacha20_block_ise3(uint32_t out[16], uint32_t const in[16]);
-void chacha20_block_ise4(uint32_t out[16], uint32_t const in[16]);
 
 #endif

@@ -1,3 +1,8 @@
+# Copyright (C) 2021 SCARV project <info@scarv.org>
+#
+# Use of this source code is restricted per the MIT license, a copy of which 
+# can be found at https://opensource.org/licenses/MIT (or should be included 
+# as LICENSE.txt within the associated archive or repository).
 
 #!/bin/sh
 
@@ -5,14 +10,6 @@ echo "-------------------------[Setting Up Project]--------------------------"
 
 # Top level environment variables
 export CCI_HOME=`pwd`
-export YOSYS_ROOT=$CCI_HOME/external/yosys
-
-
-if [ -z ${VIVADO_TOOL_DIR} ]; then
-    echo "ERROR: VIVADO_TOOL_DIR not set"
-else 
-	source $VIVADO_TOOL_DIR/settings64.sh
-fi
 
 if [ -z ${RISCV} ]; then
     echo "[ERROR] No 'RISCV' environment variable defined"
@@ -23,8 +20,6 @@ export TARGET=sakura-x
 
 echo "CCI_HOME          = $CCI_HOME"
 echo "RISCV             = $RISCV"
-echo "VIVADO_TOOL_DIR   = $VIVADO_TOOL_DIR"
-echo "YOSYS_ROOT        = $YOSYS_ROOT"
 echo
 echo "CORE              = $CORE"
 echo "TARGET            = $TARGET"

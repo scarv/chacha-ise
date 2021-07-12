@@ -1,3 +1,8 @@
+# Copyright (C) 2021 SCARV project <info@scarv.org>
+#
+# Use of this source code is restricted per the MIT license, a copy of which 
+# can be found at https://opensource.org/licenses/MIT (or should be included 
+# as LICENSE.txt within the associated archive or repository).
 
 CC     =$(RISCV)/bin/riscv64-unknown-elf-gcc
 OBJDUMP=$(RISCV)/bin/riscv64-unknown-elf-objdump
@@ -8,7 +13,7 @@ hal_dir    =$(emulator_dir)/hal
 ref_dir    = ../chacha_ref
 
 INC_DIRS  =-I$(hal_dir) -I$(ref_dir)
-SRCS = test.c chacha20_ise_v1.c chacha20_ise_v2.c chacha20_ise_v3.c chacha20_ise_v4.c\
+SRCS = test.c chacha20_ise_v1.c chacha20_ise_v2.c chacha20_ise_v3.c \
        $(wildcard $(ref_dir)/*.c) \
        $(wildcard $(hal_dir)/*.c) \
        $(wildcard $(hal_dir)/*.S) \

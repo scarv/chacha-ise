@@ -1,4 +1,9 @@
-
+/* Copyright (C) 2021 SCARV project <info@scarv.org>
+ *
+ * Use of this source code is restricted per the MIT license, a copy of which 
+ * can be found at https://opensource.org/licenses/MIT (or should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
 #include "ise_pack.h"
 
 uint64_t rv64_pack(uint64_t rs1, uint64_t rs2) {

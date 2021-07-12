@@ -1,8 +1,6 @@
 
 .text
 
-
-
 .global test_packll
 .func   test_packll
 test_packll:

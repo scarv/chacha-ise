@@ -1,15 +1,16 @@
-/* 
- * referenced implementation @ https://github.com/edre/rvv-chacha-poly
+/* Copyright (C) 2021 SCARV project <info@scarv.org>
  *
+ * Use of this source code is restricted per the MIT license, a copy of which 
+ * can be found at https://opensource.org/licenses/MIT (or should be included 
+ * as LICENSE.txt within the associated archive or repository).
  */
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "boring.h"
 
-extern void chacha20_ise_v4(uint8_t *out, const uint8_t *in, size_t in_len, const uint8_t key[32], const uint8_t nonce[12], uint32_t counter);
+extern void chacha20_ise_v3(uint8_t *out, const uint8_t *in, size_t in_len, const uint8_t key[32], const uint8_t nonce[12], uint32_t counter);
 
 void println_hex(uint8_t* data, int size) {
   while (size > 0) {
@@ -43,7 +44,7 @@ bool test_chacha(const uint8_t* data, size_t len, const uint8_t key[32], const u
 
   uint8_t test_res[1024]; 
   start = instruction_counter();
-  chacha20_ise_v4(test_res, data, len, key, nonce, 0);
+  chacha20_ise_v3(test_res, data, len, key, nonce, 0);
   end = instruction_counter();
 
   int  cmp  = datacmp(golden, test_res, len); 
@@ -59,8 +60,8 @@ bool test_chacha(const uint8_t* data, size_t len, const uint8_t key[32], const u
   }
 
   if (pass) {
-    printf("Ref = %d\n", boring_count);
-    printf("V_4 = %d\n", end - start);
+    printf("The reference performance: N_ins0= %5d\n", boring_count);
+    printf("The  V3 ISEs  performance: N_ins3= %5d\n", end - start);
   }
 
   return pass;

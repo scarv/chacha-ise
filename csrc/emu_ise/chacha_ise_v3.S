@@ -1,24 +1,21 @@
+# Copyright (C) 2021 SCARV project <info@scarv.org>
+#
+# Use of this source code is restricted per the MIT license, a copy of which 
+# can be found at https://opensource.org/licenses/MIT (or should be included 
+# as LICENSE.txt within the associated archive or repository).
+
 .section .text
 .global instruction_counter
 instruction_counter:
 	rdinstret a0
 	ret
 
-.macro chacha_add rd, rs1, rs2
+.macro chacha.add rd, rs1, rs2
 	.insn r CUSTOM_0, 7, 0b0011000, \rd, \rs1, \rs2
 .endm
 
-.macro chacha_xorrol16 rd, rs1, rs2
-	.insn r CUSTOM_0, 7, 0b0011001, \rd, \rs1, \rs2
-.endm
-.macro chacha_xorrol12 rd, rs1, rs2
-	.insn r CUSTOM_0, 7, 0b0011010, \rd, \rs1, \rs2
-.endm
-.macro chacha_xorrol08 rd, rs1, rs2
-	.insn r CUSTOM_0, 7, 0b0011011, \rd, \rs1, \rs2
-.endm
-.macro chacha_xorrol07 rd, rs1, rs2
-	.insn r CUSTOM_0, 7, 0b0011100, \rd, \rs1, \rs2
+.macro chacha.xor rd, rs1, rs2, imm
+	.insn r CUSTOM_0, 7, 3*8 + \imm, \rd, \rs1, \rs2
 .endm
 
 .macro rv64_packlh rd, rs1, rs2
@@ -26,14 +23,14 @@ instruction_counter:
 .endm
 
 .macro CHACHA_HR a b c d
-	chacha_add      \a, \a, \b
-	chacha_xorrol16 \d, \d, \a
-	chacha_add      \c, \c, \d
-	chacha_xorrol12 \b, \b, \c
-	chacha_add      \a, \a, \b
-	chacha_xorrol08 \d, \d, \a
-	chacha_add      \c, \c, \d
-	chacha_xorrol07 \b, \b, \c
+	chacha.add  \a, \a, \b
+	chacha.xor  \d, \d, \a, 1
+	chacha.add  \c, \c, \d
+	chacha.xor  \b, \b, \c, 2
+	chacha.add  \a, \a, \b
+	chacha.xor  \d, \d, \a, 3
+	chacha.add  \c, \c, \d
+	chacha.xor  \b, \b, \c, 4
 .endm
 
 #define tt2 s8
@@ -51,8 +48,8 @@ instruction_counter:
 # a3 = uint8_t key[32]
 # a4 = uint8_t nonce[12]
 # a5 = uint32_t counter
-.global chacha20_ise_v4
-chacha20_ise_v4:
+.global chacha20_ise_v3
+chacha20_ise_v3:
     addi    sp, sp, -128                   // Allocate stack space.
 
     sd      s0 , 0(sp)
@@ -125,14 +122,14 @@ round_loop:
 	bnez a6, round_loop
 
 	# Add in initial block values.
-	chacha_add s0, s0, t0
-	chacha_add s1, s1, t1
-	chacha_add s2, s2, t2
-	chacha_add s3, s3, t3
-	chacha_add s4, s4, t4
-	chacha_add s5, s5, t5
-	chacha_add s6, s6, t6
-	chacha_add s7, s7, a7
+	chacha.add s0, s0, t0
+	chacha.add s1, s1, t1
+	chacha.add s2, s2, t2
+	chacha.add s3, s3, t3
+	chacha.add s4, s4, t4
+	chacha.add s5, s5, t5
+	chacha.add s6, s6, t6
+	chacha.add s7, s7, a7
 
 	# xor in state
 	ld  tt2, 0(a1)

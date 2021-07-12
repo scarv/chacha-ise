@@ -1,3 +1,9 @@
+# Copyright (C) 2021 SCARV project <info@scarv.org>
+#
+# Use of this source code is restricted per the MIT license, a copy of which 
+# can be found at https://opensource.org/licenses/MIT (or should be included 
+# as LICENSE.txt within the associated archive or repository).
+
 ifndef CCI_HOME
     $(error "Please run 'source ./bin/source.me.sh' to setup the project workspace")
 endif
@@ -5,34 +11,32 @@ endif
 ifndef RISCV
     $(error "The RISCV environment variable must be set to a valid toolchain.")
 endif
-export LD_LIBRARY_PATH = $(RISCV)/lib
+export LD_LIBRARY_PATH = $(CCI_HOME)/emulator
 
 work_dir ?= $(CCI_HOME)/work
 
-cmodel_dir   ?= $(CCI_HOME)/csrc/cmodel_test
 emulator_dir ?= $(CCI_HOME)/emulator
 synthesis_dir?= $(CCI_HOME)/synth_yosys
 
 # verifying the chacha ise cmodels
-cmodel_verify:
-	$(MAKE) -C $(cmodel_dir) all                   work_dir=$(work_dir)
+cmodel_test:
+	$(MAKE) -C $(CCI_HOME)/csrc/cmodel_test all   work_dir=$(work_dir)
 
-# verifying and evaluating the chacha ise implementations with the emulator 
-emu_verify:	
-	$(MAKE) -C $(CCI_HOME)/csrc/emu_verify all     work_dir=$(work_dir)/emu_verify emulator_dir=$(emulator_dir)
-	$(emulator_dir)/emulator -c -m 700000 $(work_dir)/emu_verify/emu_verify-rocket-chachaise.elf
-
+# evaluating the ISE variants on the RocketChip emulator.
 emu_eval:	
-	$(MAKE) -C $(CCI_HOME)/csrc/emu_eval all       work_dir=$(work_dir)/emu_eval   emulator_dir=$(emulator_dir)
+	$(MAKE) -C $(CCI_HOME)/csrc/emu_eval all      work_dir=$(work_dir)/emu_eval   emulator_dir=$(emulator_dir)
 	$(emulator_dir)/emulator -c -m 400000 $(work_dir)/emu_eval/test_chacha.elf
 
-emu_enc:	
-	$(MAKE) -C $(CCI_HOME)/csrc/emu_enc all       work_dir=$(work_dir)/emu_enc   emulator_dir=$(emulator_dir)
-	$(emulator_dir)/emulator -c -m 1700000 $(work_dir)/emu_enc/emu_enc.elf
+# evaluating the ISE-assisted software of the ChaCha encryption on the RocketChip emulator.
+emu_ise:	
+	$(MAKE) -C $(CCI_HOME)/csrc/emu_ise all       work_dir=$(work_dir)/emu_ise   emulator_dir=$(emulator_dir)
+	$(emulator_dir)/emulator -c -m 1700000 $(work_dir)/emu_ise/emu_ise.elf
 
+# evaluating the optimised software of the ChaCha encryption on RV64IB spike simulator.
 sim_rvb:	
 	$(MAKE) -C $(CCI_HOME)/csrc/sim_rvb all       work_dir=$(work_dir)/sim_rvb
 
+# evaluating the optimised software and the vectorised software of the ChaCha encryption on RV64GVC spike simulator.
 sim_vec:	
 	$(MAKE) -C $(CCI_HOME)/csrc/sim_vec all       work_dir=$(work_dir)/sim_vec
 

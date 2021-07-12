@@ -1,43 +1,56 @@
-
+/* Copyright (C) 2021 SCARV project <info@scarv.org>
+ *
+ * Use of this source code is restricted per the MIT license, a copy of which 
+ * can be found at https://opensource.org/licenses/MIT (or should be included 
+ * as LICENSE.txt within the associated archive or repository).
+ */
 #include "ise_v2.h"
 
 //
-// Given rs1||rs2 = A,C||B,D
-// Compute the intermediate values of B and D in the Quarter round
-uint64_t chacha_bd_v2(uint64_t rs1, uint64_t rs2) {
+// Given rs1||rs2 = AD,||B,C
+// Compute the upper Quarter round output values of A and D
+uint64_t chacha_ad0(uint64_t rs1, uint64_t rs2) {
     uint32_t a = rs1 >> 32;
     uint32_t b = rs2 >> 32;
     uint32_t d = rs1      ;
-    uint32_t c = rs2      ;
-    uint32_t id = ROL32(((a+b )^d),16);
-    uint32_t ib = ROL32(((c+id)^b),12);
-    return ((uint64_t)ib) << 32 | id;
-}
-
-//
-// Given rs1||rs2 = A,D||iB,iD
-// Compute the output values of A and D in the Quarter round
-uint64_t chacha_ad_v2(uint64_t rs1, uint64_t rs2) {
-    uint32_t  a = rs1 >> 32;
-    uint32_t ib = rs2 >> 32;
-    uint32_t  d = rs1      ;
-    uint32_t id = rs2      ;
-    uint32_t na = ib + (d^ROL32(id,16));
-    uint32_t nd = ROL32((id^na),8);
+    uint32_t na = a+b;
+    uint32_t nd = ROL32((na ^ d), 16);
     return ((uint64_t)na) << 32 | nd;
 }
 
 //
-// Given rs1||rs2 = nA,nD||B,C
-// Compute the output values of B and C in the Quarter round
-uint64_t chacha_bc_v2(uint64_t rs1, uint64_t rs2) {
-    uint32_t na = rs1 >> 32;
-    uint32_t  b = rs2 >> 32;
-    uint32_t nd = rs1      ;
-    uint32_t  c = rs2      ;
-
-    uint32_t  t = c +(ROL32(nd,24)^na);
-    uint32_t nc = t + nd;
-    uint32_t nb = ROL32((nc ^ ROL32((b^t),12)),7);
+// Given rs1||rs2 = AD,||B,C
+// Compute the upper Quarter round output values of B and C
+uint64_t chacha_bc0(uint64_t rs1, uint64_t rs2) {
+    uint32_t b = rs2 >> 32;
+    uint32_t c = rs2      ;
+    uint32_t d = rs1      ;
+    uint32_t nc = c + d;
+    uint32_t nb = ROL32((nc ^ b),12);
     return ((uint64_t)nb) << 32 | nc;
 }
+
+//
+// Given rs1||rs2 = AD,||B,C
+// Compute the lower Quarter round output values of A and D
+uint64_t chacha_ad1(uint64_t rs1, uint64_t rs2) {
+    uint32_t a = rs1 >> 32;
+    uint32_t b = rs2 >> 32;
+    uint32_t d = rs1      ;
+    uint32_t na = a+b;
+    uint32_t nd = ROL32((na ^ d),  8);
+    return ((uint64_t)na) << 32 | nd;
+}
+
+//
+// Given rs1||rs2 = AD,||B,C
+// Compute the lower Quarter round output values of B and C
+uint64_t chacha_bc1(uint64_t rs1, uint64_t rs2) {
+    uint32_t b = rs2 >> 32;
+    uint32_t c = rs2      ;
+    uint32_t d = rs1      ;
+    uint32_t nc = c + d;
+    uint32_t nb = ROL32((nc ^ b), 7);
+    return ((uint64_t)nb) << 32 | nc;
+}
+
