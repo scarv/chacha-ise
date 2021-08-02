@@ -14,7 +14,9 @@ The work is published in [1].
 
 ```
 ├── bin                - scripts (e.g., environment configuration)
-├── csrc               - source code
+├── emulator           - ChaCha ISE-supported Rocket-Chip Emulator and its HAL support
+├── rtl                - the implementations of ChaCha ISE variances in verilog
+├── src                - source code
 │   ├── chacha_ref       - source code for the vanilla C implementation
 │   ├── cmodel_ise       - source code for the model of ISEs in C
 │   ├── cmodel_test      - source code for verifying the ISE models in the ChaCha block
@@ -22,8 +24,6 @@ The work is published in [1].
 │   ├── emu_ise          - source code for ISE-assisted ChaCha encryption in emulator
 │   ├── sim_rvb          - source code for the ChaCha encryption using RV64IB
 │   └── sim_vec          - source code for the ChaCha encryption using vector extension
-├── emulator           - ChaCha ISE-supported Rocket-Chip Emulator and its HAL support
-├── rtl                - the implementations of ChaCha ISE variances in verilog
 ├── synth-yosys        - scripts to synthesise the ChaCha ISE using Yosys
 ├── toolchain-vec      - scripts to install the RISC-V toolchains for vector extension
 └── work               - working directory for build
@@ -267,4 +267,9 @@ The work is published in [1].
 
 [1] Ben Marshall, Daniel Page, Thinh H. Pham, "A Lighweight ISE for ChaCha on RISCV", The 32nd IEEE International Conference on Application-specific Systems, Architectures and Processors (ASAP2021).
 <!--- -------------------------------------------------------------------- --->
-   
+
+## Acknowledgements
+
+This work has been supported in part
+by EPSRC via grant
+[EP/R012288/1](https://gow.epsrc.ukri.org/NGBOViewGrant.aspx?GrantRef=EP/R012288/1) (under the [RISE](http://www.ukrise.org) programme).
