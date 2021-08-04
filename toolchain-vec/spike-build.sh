@@ -10,7 +10,7 @@ source ${CCI_HOME}/toolchain-vec/share.sh
 
 # =============================================================================
 
-mkdir --parents ${RISCV}
+mkdir --parents ${RISCV_VEC}
 
 if [ -d ${SPIKE_BUILD} ] ; then
     rm --force --recursive ${SPIKE_BUILD}
@@ -18,10 +18,10 @@ fi
 
 mkdir --parents ${SPIKE_BUILD}
 
-export PATH="${RISCV}/bin:${PATH}"
+export PATH="${RISCV_VEC}/bin:${PATH}"
 
 cd ${SPIKE_BUILD}
-${SPIKE_REPO}/configure --prefix="${RISCV}" --target="riscv64-unknown-elf"
+${SPIKE_REPO}/configure --prefix="${RISCV_VEC}" --target="riscv64-unknown-elf"
 make
 make install
 

@@ -6,20 +6,24 @@
 # can be found at https://opensource.org/licenses/MIT (or should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-source ${CCI_HOME}/toolchain-vec/share.sh
+source ${CCI_HOME}/toolchain-rvb/share.sh
 
 # =============================================================================
 
-if [ -d ${RISCV_VEC} ] ; then
-    rm --force --recursive ${RISCV_VEC}
+mkdir --parents ${RISCV}
+
+if [ -d ${PK_BUILD} ] ; then
+    rm --force --recursive ${PK_BUILD}
 fi
 
-mkdir --parents ${RISCV_VEC}
+mkdir --parents ${PK_BUILD}
 
-cd ${GCC_REPO}
+export PATH="${RISCV}/bin:${PATH}"
+
+cd ${PK_BUILD}
+${PK_REPO}/configure --prefix="${RISCV}" --host="riscv64-unknown-elf" --with-arch="rv64gc" --with-abi="lp64"
 make clean
-./configure --prefix="${RISCV_VEC}" --enable-multilib --disable-linux --with-arch=rv64gcv --with-abi=lp64d
-make -j$(nproc)
+make
+make install
 
 # =============================================================================
-

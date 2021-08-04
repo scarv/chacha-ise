@@ -4,13 +4,13 @@
 # can be found at https://opensource.org/licenses/MIT (or should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-ifndef RV64IB
+ifndef RISCV
     $(error "The RISCV environment variable must be set to a valid toolchain supporting Bitmanip extension.")
 endif
 
-CC     =$(RV64IB)/bin/riscv64-unknown-elf-gcc
-OBJDUMP=$(RV64IB)/bin/riscv64-unknown-elf-objdump
-SIM    =$(RV64IB)/bin/spike
+CC     =$(RISCV)/bin/riscv64-unknown-elf-gcc
+OBJDUMP=$(RISCV)/bin/riscv64-unknown-elf-objdump
+SIM    =$(RISCV)/bin/spike
 ISA    =rv64imacb
 
 SRCS = test.c chacha_openssl.c chacha_rv64ib.S\

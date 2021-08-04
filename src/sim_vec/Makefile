@@ -4,9 +4,9 @@
 # can be found at https://opensource.org/licenses/MIT (or should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-CC     =$(RISCV)/bin/riscv64-unknown-elf-gcc
-OBJDUMP=$(RISCV)/bin/riscv64-unknown-elf-objdump
-SIM    =$(RISCV)/bin/spike
+CC     =$(RISCV_VEC)/bin/riscv64-unknown-elf-gcc
+OBJDUMP=$(RISCV_VEC)/bin/riscv64-unknown-elf-objdump
+SIM    =$(RISCV_VEC)/bin/spike
 ISA    =rv64gcv
 
 VLEN ?=128

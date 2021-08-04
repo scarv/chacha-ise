@@ -10,7 +10,7 @@ source ${CCI_HOME}/toolchain-vec/share.sh
 
 # =============================================================================
 
-mkdir --parents ${RISCV}
+mkdir --parents ${RISCV_VEC}
 
 if [ -d ${PK_BUILD} ] ; then
     rm --force --recursive ${PK_BUILD}
@@ -18,10 +18,10 @@ fi
 
 mkdir --parents ${PK_BUILD}
 
-export PATH="${RISCV}/bin:${PATH}"
+export PATH="${RISCV_VEC}/bin:${PATH}"
 
 cd ${PK_BUILD}
-${PK_REPO}/configure --prefix="${RISCV}" --host="riscv64-unknown-elf" --with-arch="rv64gc" --with-abi="lp64"
+${PK_REPO}/configure --prefix="${RISCV_VEC}" --host="riscv64-unknown-elf" --with-arch="rv64gc" --with-abi="lp64"
 make clean
 make
 make install

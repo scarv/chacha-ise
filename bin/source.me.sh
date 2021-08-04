@@ -15,11 +15,16 @@ if [ -z ${RISCV} ]; then
     echo "[ERROR] No 'RISCV' environment variable defined"
 fi	
 
+if [ -z ${RISCV_VEC} ]; then
+    echo "[ERROR] No 'RISCV_VEC' environment variable defined"
+fi	
+
 export CORE=rocket-chachaise
 export TARGET=sakura-x
 
 echo "CCI_HOME          = $CCI_HOME"
 echo "RISCV             = $RISCV"
+echo "RISCV_VEC         = $RISCV_VEC"
 echo
 echo "CORE              = $CORE"
 echo "TARGET            = $TARGET"

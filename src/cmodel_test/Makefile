@@ -5,8 +5,8 @@
 # as LICENSE.txt within the associated archive or repository).
 
 work_dir        ?= $(CCI_HOME)/work
-chacha_ref_dir  ?= $(CCI_HOME)/csrc/chacha_ref
-cmodel_ise_dir  ?= $(CCI_HOME)/csrc/cmodel_ise
+chacha_ref_dir  ?= $(CCI_HOME)/src/chacha_ref
+cmodel_ise_dir  ?= $(CCI_HOME)/src/cmodel_ise
 
 INC_DIRS  =-I$(chacha_ref_dir) -I$(cmodel_ise_dir)
 

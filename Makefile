@@ -20,25 +20,25 @@ synthesis_dir?= $(CCI_HOME)/synth_yosys
 
 # verifying the chacha ise cmodels
 cmodel_test:
-	$(MAKE) -C $(CCI_HOME)/csrc/cmodel_test all   work_dir=$(work_dir)
+	$(MAKE) -C $(CCI_HOME)/src/cmodel_test all   work_dir=$(work_dir)
 
 # evaluating the ISE variants on the RocketChip emulator.
 emu_eval:	
-	$(MAKE) -C $(CCI_HOME)/csrc/emu_eval all      work_dir=$(work_dir)/emu_eval   emulator_dir=$(emulator_dir)
+	$(MAKE) -C $(CCI_HOME)/src/emu_eval all      work_dir=$(work_dir)/emu_eval   emulator_dir=$(emulator_dir)
 	$(emulator_dir)/emulator -c -m 400000 $(work_dir)/emu_eval/test_chacha.elf
 
 # evaluating the ISE-assisted software of the ChaCha encryption on the RocketChip emulator.
 emu_ise:	
-	$(MAKE) -C $(CCI_HOME)/csrc/emu_ise all       work_dir=$(work_dir)/emu_ise   emulator_dir=$(emulator_dir)
+	$(MAKE) -C $(CCI_HOME)/src/emu_ise all       work_dir=$(work_dir)/emu_ise   emulator_dir=$(emulator_dir)
 	$(emulator_dir)/emulator -c -m 1700000 $(work_dir)/emu_ise/emu_ise.elf
 
 # evaluating the optimised software of the ChaCha encryption on RV64IB spike simulator.
 sim_rvb:	
-	$(MAKE) -C $(CCI_HOME)/csrc/sim_rvb all       work_dir=$(work_dir)/sim_rvb
+	$(MAKE) -C $(CCI_HOME)/src/sim_rvb all       work_dir=$(work_dir)/sim_rvb
 
 # evaluating the optimised software and the vectorised software of the ChaCha encryption on RV64GVC spike simulator.
 sim_vec:	
-	$(MAKE) -C $(CCI_HOME)/csrc/sim_vec all       work_dir=$(work_dir)/sim_vec
+	$(MAKE) -C $(CCI_HOME)/src/sim_vec all       work_dir=$(work_dir)/sim_vec
 
 synth_yosys: 
 	$(MAKE) -C $(synthesis_dir) all                work_dir=$(work_dir)/synth_yosys

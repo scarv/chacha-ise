@@ -6,20 +6,15 @@
 # can be found at https://opensource.org/licenses/MIT (or should be included 
 # as LICENSE.txt within the associated archive or repository).
 
-source ${CCI_HOME}/toolchain-vec/share.sh
+source ${CCI_HOME}/toolchain-rvb/share.sh
 
 # =============================================================================
 
-if [ -d ${RISCV_VEC} ] ; then
-    rm --force --recursive ${RISCV_VEC}
+if [ ! -d ${PK_REPO} ] ; then
+  git clone https://github.com/riscv/riscv-pk.git ${PK_REPO}
+  cd ${PK_REPO}
+  git fetch origin ${PK_COMMIT}:${BRANCH}
+  git checkout ${BRANCH}
 fi
 
-mkdir --parents ${RISCV_VEC}
-
-cd ${GCC_REPO}
-make clean
-./configure --prefix="${RISCV_VEC}" --enable-multilib --disable-linux --with-arch=rv64gcv --with-abi=lp64d
-make -j$(nproc)
-
 # =============================================================================
-

@@ -15,12 +15,12 @@ all	   : clone build
 
 define rule_clone
 $(strip ${1})-clone  :
-	@$${CCI_HOME}/toolchain-vec/$(strip ${1})-clone.sh
+	@$${CCI_HOME}/toolchain-rvb/$(strip ${1})-clone.sh
 endef
 
 define rule_build
 $(strip ${1})-build  :
-	@$${CCI_HOME}/toolchain-vec/$(strip ${1})-build.sh
+	@$${CCI_HOME}/toolchain-rvb/$(strip ${1})-build.sh
 endef
 
 $(foreach COMPONENT,${COMPONENTS},$(eval $(call rule_clone, ${COMPONENT})))
@@ -31,6 +31,6 @@ clone  : $(foreach COMPONENT, ${COMPONENTS}, ${COMPONENT}-clone )
 build  : $(foreach COMPONENT, ${COMPONENTS}, ${COMPONENT}-build )
 
 clean  :
-	@rm --force --recursive ${CCI_HOME}/build/toolchain-vec
+	@rm --force --recursive ${CCI_HOME}/build/toolchain-rvb
 
 # =============================================================================
