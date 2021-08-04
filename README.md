@@ -25,6 +25,7 @@ The work is published in [1].
 │   ├── sim_rvb          - source code for the ChaCha encryption using RV64IB
 │   └── sim_vec          - source code for the ChaCha encryption using vector extension
 ├── synth-yosys        - scripts to synthesise the ChaCha ISE using Yosys
+├── toolchain-rvb      - scripts to install the RISC-V toolchains for bitmanip extension
 ├── toolchain-vec      - scripts to install the RISC-V toolchains for vector extension
 └── work               - working directory for build
 
