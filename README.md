@@ -37,10 +37,11 @@ The work is published in [1].
 
 - For seting up the repository
 
-  - Fix path for the RISCV toolchain, e.g., 
+  - Fix paths for the RISCV toolchains supporting Bitmanip and Vector extension, e.g., 
   
     ```sh
-    export RISCV="/opt/riscv"
+    export RISCV="/opt/riscv-rvb"
+    export RISCV_VEC="/opt/riscv-vec"
     ```
   
   - Clone the repository and setup environment
@@ -51,8 +52,15 @@ The work is published in [1].
     git submodule update --init --recursive
     source bin/source.me.sh
     ```
+
+  - Build the Bitmanip-supported RISC-V toolchain 
+
+    ```sh
+    make -f toolchain-rvb/Makefile clone 
+    make -f toolchain-rvb/Makefile build
+    ```
   
-  - Build vector-supported RISC-V toolchain 
+  - Build the vector-supported RISC-V toolchain 
 
     ```sh
     make -f toolchain-vec/Makefile clone 
